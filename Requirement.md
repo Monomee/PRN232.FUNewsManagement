@@ -1,5 +1,5 @@
 
-### PHẦN 1: TỔNG QUAN VỀ ĐỀ TÀI (TRANG WEB NÀY LÀM VỀ GÌ?)
+### PHẦN 1: TỔNG QUAN VỀ ĐỀ TÀI (TRANG WEB NÀY LÀM VỀ GÌ)
 
 * **Tên hệ thống:** Hệ thống Quản lý Tin tức – **FUNewsManagementSystem**.
 
