@@ -21,6 +21,22 @@ public class NewsArticleController : ControllerBase
     {
         _articleService = articleService;
     }
+    [HttpGet("my-articles")]
+    [Authorize(Roles = "Staff")]
+    [EnableQuery] 
+    public async Task<IActionResult> GetMyArticles()
+    {
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!short.TryParse(userIdStr, out short currentUserId))
+        {
+            return Unauthorized(new { message = "Invalid user token." });
+        }
+
+        var allArticles = await _articleService.GetAllArticlesAsync();
+        var myArticles = allArticles.Where(a => a.CreatedById == currentUserId).ToList();
+
+        return Ok(myArticles);
+    }
 
     [HttpGet]
     [AllowAnonymous]

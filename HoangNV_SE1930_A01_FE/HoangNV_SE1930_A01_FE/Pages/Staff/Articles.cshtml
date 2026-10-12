@@ -251,7 +251,7 @@
             tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div> Loading news articles...</td></tr>`;
 
             try {
-                const response = await apiFetch('news?$orderby=CreatedDate desc');
+                const response = await apiFetch('news/my-articles?$orderby=CreatedDate desc');
                 if (response.ok) {
                     allArticles = await response.json();
                     renderArticles(allArticles);
