@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FUNewsManagement_AnalyticsAPI", "FUNewsManagement_AnalyticsAPI", "{45380D72-CDED-F591-A9B9-0EAD9B905066}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FUNewsManagement_AnalyticsAPI", "FUNewsManagement_AnalyticsAPI\FUNewsManagement_AnalyticsAPI\FUNewsManagement_AnalyticsAPI.csproj", "{C7319C30-8C55-4536-9C46-07FDB0D2484C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C7319C30-8C55-4536-9C46-07FDB0D2484C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7319C30-8C55-4536-9C46-07FDB0D2484C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7319C30-8C55-4536-9C46-07FDB0D2484C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C7319C30-8C55-4536-9C46-07FDB0D2484C}.Debug|x64.Build.0 = Debug|Any CPU
+		{C7319C30-8C55-4536-9C46-07FDB0D2484C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C7319C30-8C55-4536-9C46-07FDB0D2484C}.Debug|x86.Build.0 = Debug|Any CPU
+		{C7319C30-8C55-4536-9C46-07FDB0D2484C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7319C30-8C55-4536-9C46-07FDB0D2484C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7319C30-8C55-4536-9C46-07FDB0D2484C}.Release|x64.ActiveCfg = Release|Any CPU
+		{C7319C30-8C55-4536-9C46-07FDB0D2484C}.Release|x64.Build.0 = Release|Any CPU
+		{C7319C30-8C55-4536-9C46-07FDB0D2484C}.Release|x86.ActiveCfg = Release|Any CPU
+		{C7319C30-8C55-4536-9C46-07FDB0D2484C}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C7319C30-8C55-4536-9C46-07FDB0D2484C} = {45380D72-CDED-F591-A9B9-0EAD9B905066}
+	EndGlobalSection
+EndGlobal

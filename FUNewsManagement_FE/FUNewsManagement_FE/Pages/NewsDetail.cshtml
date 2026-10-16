@@ -1,0 +1,255 @@
+@page
+@model FUNewsManagement_FE.Pages.NewsDetailModel
+@{
+    ViewData["Title"] = "News Article Detail";
+}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/" class="text-decoration-none"><i class="bi bi-house-door-fill me-1"></i>Home</a></li>
+        <li class="breadcrumb-item"><span id="bcCategory">News</span></li>
+        <li class="breadcrumb-item active text-truncate" style="max-width: 350px;" id="bcTitle" aria-current="page">Article Detail</li>
+    </ol>
+</nav>
+
+<!-- Main Container -->
+<div class="row g-4">
+    <!-- Left Column: Article Detail -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4" id="articleCard">
+            <!-- Article Image -->
+            <div id="articleImageWrapper" class="d-none position-relative bg-dark" style="max-height: 380px; overflow: hidden;">
+                <img id="detailArticleImage" src="" alt="Article Cover" class="w-100 h-100" style="object-fit: cover;" onerror="this.parentElement.classList.add('d-none')" />
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <!-- Category Badge & Views -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold" id="detailCategory">
+                        General News
+                    </span>
+                    <span class="text-muted small" id="detailViewCount">
+                        <i class="bi bi-eye me-1"></i> <span id="viewCountText">0</span> views
+                    </span>
+                </div>
+
+                <!-- Title -->
+                <h1 class="display-6 fw-bold text-dark mb-3" id="detailTitle">
+                    Loading article...
+                </h1>
+
+                <!-- Meta Header -->
+                <div class="d-flex flex-wrap align-items-center gap-3 text-muted small mb-4 pb-3 border-bottom">
+                    <span><i class="bi bi-person-circle text-primary me-1"></i><strong class="text-dark" id="detailAuthor">Author</strong></span>
+                    <span><i class="bi bi-calendar3 me-1"></i><span id="detailDate">Date</span></span>
+                    <span><i class="bi bi-link-45deg me-1"></i>Source: <span id="detailSource">N/A</span></span>
+                </div>
+
+                <!-- Headline Quote Box -->
+                <div class="p-3 bg-light rounded-3 mb-4 border-start border-primary border-4 shadow-sm" id="headlineContainer">
+                    <p class="fw-semibold text-secondary mb-0 fst-italic fs-6" id="detailHeadline">
+                        Headline loading...
+                    </p>
+                </div>
+
+                <!-- Article Content -->
+                <div class="article-body text-dark mb-4" id="detailContent" style="white-space: pre-line; line-height: 1.85; font-size: 1.05rem;">
+                    <div class="text-center py-5 text-muted">
+                        <div class="spinner-border text-primary me-2"></div> Fetching news content...
+                    </div>
+                </div>
+
+                <!-- Tags Badges -->
+                <div class="pt-3 border-top" id="detailTagsWrapper">
+                    <h6 class="fw-bold text-muted small mb-2"><i class="bi bi-tags-fill me-1 text-primary"></i>Tags & Topics:</h6>
+                    <div class="d-flex flex-wrap gap-2" id="detailTagsContainer">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <a href="/" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i> Back to Public News
+            </a>
+        </div>
+    </div>
+
+    <!-- Right Column: Sidebar with Top 3 Recommendations -->
+    <div class="col-lg-4">
+        <!-- Top 3 Recommendations Widget -->
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+            <div class="card-header bg-white border-bottom p-3">
+                <h5 class="fw-bold mb-0 text-dark d-flex align-items-center">
+                    <i class="bi bi-stars text-warning me-2 fs-5"></i> Related News
+                </h5>
+                <small class="text-muted">Top 3 AI & Category Recommendations</small>
+            </div>
+            <div class="card-body p-3" id="recommendationsList">
+                <div class="text-center py-4 text-muted small">
+                    <div class="spinner-border spinner-border-sm text-primary me-1"></div> Finding recommendations...
+                </div>
+            </div>
+        </div>
+
+        <!-- System Quick Links Widget -->
+        <div class="card border-0 shadow-sm rounded-4 p-3 bg-light">
+            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-info-circle me-1 text-primary"></i>About FUNews</h6>
+            <p class="text-muted small mb-3">
+                FU News Management System is an intelligent, distributed news portal providing academic articles, research publications, and campus events.
+            </p>
+            <div class="d-grid gap-2">
+                <a href="/" class="btn btn-sm btn-outline-primary rounded-pill">Browse All Articles</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const articleId = urlParams.get('id');
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!articleId) {
+                document.getElementById('detailTitle').textContent = 'Article ID missing.';
+                document.getElementById('detailContent').innerHTML = '<div class="alert alert-warning">No article ID was provided in the URL query string.</div>';
+                return;
+            }
+
+            // Mark notification as read so red badge disappears
+            if (typeof markNotificationAsRead === 'function') {
+                markNotificationAsRead(articleId);
+            }
+
+            await loadArticleDetails(articleId);
+            await loadRecommendedArticles(articleId);
+        });
+
+        async function loadArticleDetails(id) {
+            try {
+                const fetchFn = typeof authenticatedFetch === 'function' ? authenticatedFetch : fetch;
+                const res = await fetchFn(`${window.CORE_API_URL}news/${encodeURIComponent(id)}`);
+                const data = await res.json().catch(() => null);
+
+                if (!res.ok || (data && data.isOffline)) {
+                    const isOffline = data && data.isOffline;
+                    const errorMsg = (data && data.message)
+                        ? data.message
+                        : (res.status === 404 ? 'Bài viết không tồn tại hoặc đã bị xóa.' : `Lỗi tải bài viết (Mã lỗi ${res.status})`);
+
+                    document.getElementById('detailTitle').textContent = isOffline ? 'Chế độ ngoại tuyến' : 'Bài viết không tồn tại';
+                    document.getElementById('detailContent').innerHTML = `
+                        <div class="alert ${isOffline ? 'alert-warning' : 'alert-danger'} py-4 shadow-sm border-0 rounded-4 d-flex align-items-center gap-3">
+                            <i class="bi ${isOffline ? 'bi-wifi-off' : 'bi-exclamation-triangle-fill'} fs-2 ${isOffline ? 'text-warning' : 'text-danger'}"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">${escapeHtml(errorMsg)}</h6>
+                                <p class="small text-muted mb-0">${isOffline ? 'Hệ thống đang hoạt động ở chế độ ngoại tuyến. Chỉ TOP 10 bài viết mới nhất được lưu trữ cục bộ.' : 'Vui lòng kiểm tra lại đường dẫn hoặc quay lại danh sách tin tức.'}</p>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const article = data;
+
+                // Set page title
+                document.title = `${article.newsTitle || 'Article'} - FU News`;
+
+                // Update breadcrumb
+                document.getElementById('bcCategory').textContent = article.categoryName || 'News';
+                document.getElementById('bcTitle').textContent = article.newsTitle || 'Detail';
+
+                // Update Header & Meta
+                document.getElementById('detailCategory').textContent = article.categoryName || 'General';
+                document.getElementById('detailTitle').textContent = article.newsTitle || 'Untitled';
+                document.getElementById('detailAuthor').textContent = article.createdByName || 'Staff';
+                document.getElementById('detailDate').textContent = article.createdDate ? new Date(article.createdDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recently';
+                document.getElementById('detailSource').textContent = article.newsSource || 'FU Official Portal';
+                document.getElementById('detailHeadline').textContent = article.headline || '';
+                document.getElementById('detailContent').textContent = article.newsContent || '';
+                document.getElementById('viewCountText').textContent = article.viewCount || 0;
+
+                // Handle Cover Image
+                const imgWrap = document.getElementById('articleImageWrapper');
+                const imgEl = document.getElementById('detailArticleImage');
+                if (article.imageUrl) {
+                    imgEl.src = article.imageUrl;
+                    imgWrap.classList.remove('d-none');
+                } else {
+                    imgWrap.classList.add('d-none');
+                }
+
+                // Handle Tags
+                const tagsContainer = document.getElementById('detailTagsContainer');
+                if (article.tags && article.tags.length > 0) {
+                    tagsContainer.innerHTML = article.tags.map(t => `
+                        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill shadow-sm">
+                            <i class="bi bi-tag-fill me-1 text-primary"></i>${escapeHtml(t.tagName)}
+                        </span>
+                    `).join('');
+                } else {
+                    tagsContainer.innerHTML = '<span class="text-muted small fst-italic">No tags attached to this article.</span>';
+                }
+
+            } catch (err) {
+                document.getElementById('detailTitle').textContent = 'Chế độ ngoại tuyến';
+                document.getElementById('detailContent').innerHTML = `
+                    <div class="alert alert-warning py-4 shadow-sm border-0 rounded-4 d-flex align-items-center gap-3">
+                        <i class="bi bi-wifi-off fs-2 text-warning"></i>
+                        <div>
+                            <h6 class="fw-bold mb-1">Bài viết này chưa được lưu ngoại tuyến. Vui lòng kết nối mạng để đọc.</h6>
+                            <p class="small text-muted mb-0">Hệ thống đang hoạt động ở chế độ ngoại tuyến. Chỉ TOP 10 bài viết mới nhất được lưu trữ cục bộ.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadRecommendedArticles(id) {
+            const container = document.getElementById('recommendationsList');
+            try {
+                const fetchFn = typeof authenticatedFetch === 'function' ? authenticatedFetch : fetch;
+                // First attempt: Analytics API
+                let res = await fetchFn(`${window.ANALYTICS_API_URL}recommend/${encodeURIComponent(id)}`).catch(() => null);
+                if (!res || !res.ok) {
+                    // Fallback to Core API related endpoint
+                    res = await fetchFn(`${window.CORE_API_URL}news/${encodeURIComponent(id)}/related`).catch(() => null);
+                }
+
+                if (!res || !res.ok) {
+                    container.innerHTML = '<span class="text-muted small fst-italic d-block text-center py-3">Không có bài viết gợi ý lúc này.</span>';
+                    return;
+                }
+
+                const items = await res.json().catch(() => []);
+                if (!items || items.length === 0) {
+                    container.innerHTML = '<span class="text-muted small fst-italic d-block text-center py-3">Không có bài viết liên quan.</span>';
+                    return;
+                }
+
+                let html = '<div class="d-flex flex-column gap-3">';
+                items.slice(0, 3).forEach(item => {
+                    const dateStr = item.createdDate ? new Date(item.createdDate).toLocaleDateString() : '';
+                    html += `
+                        <a href="/NewsDetail?id=${encodeURIComponent(item.newsArticleId)}" class="card text-decoration-none text-dark border rounded-3 p-3 hover-shadow transition">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-primary-subtle text-primary border" style="font-size: 0.72rem;">${escapeHtml(item.categoryName || 'News')}</span>
+                                <small class="text-muted font-monospace" style="font-size: 0.7rem;">${dateStr}</small>
+                            </div>
+                            <h6 class="fw-bold mb-1 line-clamp-2 text-primary-hover">${escapeHtml(item.newsTitle || '')}</h6>
+                            <p class="small text-muted mb-0 line-clamp-2">${escapeHtml(item.headline || '')}</p>
+                        </a>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+
+            } catch (err) {
+                container.innerHTML = '<span class="text-muted small fst-italic d-block text-center py-3">Không thể tải bài viết gợi ý.</span>';
+            }
+        }
+    </script>
+}

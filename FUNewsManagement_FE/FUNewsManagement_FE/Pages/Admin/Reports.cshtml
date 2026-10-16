@@ -1,0 +1,567 @@
+@page
+@model FUNewsManagement_FE.Pages.Admin.ReportsModel
+@{
+    ViewData["Title"] = "Reports & Analytics Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Executive Analytics Dashboard</h2>
+        <p class="text-muted mb-0">Powered by Distributed Analytics API with Chart.js visualization and direct Excel streaming.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-warning text-dark px-3 shadow-sm fw-semibold" id="btnTestPolly" onclick="testPollyResilience()" title="Test Polly Retry Policy (Wait & Retry with Exponential Backoff)">
+            <span id="pollySpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+            <i class="bi bi-shield-check text-warning me-1"></i> ⚡ Demo Polly Retry
+        </button>
+        <button type="button" class="btn btn-success px-4 shadow-sm" id="btnExportExcel" onclick="exportToExcel()">
+            <span id="exportSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+            <i class="bi bi-file-earmark-excel-fill me-1"></i> Export Excel (.xlsx)
+        </button>
+    </div>
+</div>
+
+<!-- Filters Card -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Start Date (From)</label>
+                <input type="date" id="reportStartDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">End Date (To)</label>
+                <input type="date" id="reportEndDate" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Category</label>
+                <select id="reportCategorySelect" class="form-select">
+                    <option value="">-- All Categories --</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary flex-grow-1" onclick="generateReport()">
+                        <i class="bi bi-funnel-fill me-1"></i> Apply Filters
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="resetReportPeriod()">
+                        Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 bg-primary text-white p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-white-50 text-uppercase fw-semibold small">Total Articles</span>
+                    <h2 class="display-5 fw-bold mb-0" id="kpiTotal">0</h2>
+                </div>
+                <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                    <i class="bi bi-newspaper fs-2 text-white"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 bg-success text-white p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-white-50 text-uppercase fw-semibold small">Active (Published)</span>
+                    <h2 class="display-5 fw-bold mb-0" id="kpiActive">0</h2>
+                </div>
+                <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                    <i class="bi bi-check-circle-fill fs-2 text-white"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 bg-secondary text-white p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-white-50 text-uppercase fw-semibold small">Inactive (Draft)</span>
+                    <h2 class="display-5 fw-bold mb-0" id="kpiInactive">0</h2>
+                </div>
+                <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                    <i class="bi bi-dash-circle-fill fs-2 text-white"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Chart.js Visualizations -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Articles Distribution by Category</h5>
+                <span class="badge bg-light text-muted border">Bar Chart</span>
+            </div>
+            <div style="position: relative; height: 320px;">
+                <canvas id="categoryBarChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="bi bi-pie-chart-fill text-success me-2"></i>Status Ratio</h5>
+                <span class="badge bg-light text-muted border">Doughnut</span>
+            </div>
+            <div style="position: relative; height: 320px;" class="d-flex align-items-center justify-content-center">
+                <canvas id="statusPieChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Top Trending Articles (Most Viewed) Card -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-fire text-danger me-2"></i>Top Trending Articles (Most Viewed)
+                </h5>
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1 small">
+                    <i class="bi bi-broadcast me-1"></i>Live SignalR
+                </span>
+            </div>
+            <small class="text-muted">Real-time engagement leaderboard sorted by total views from Analytics API</small>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm" onclick="loadTrendingArticles()">
+            <i class="bi bi-arrow-clockwise me-1"></i> Refresh Trending
+        </button>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4 text-center" style="width: 80px;">Rank</th>
+                    <th style="min-width: 340px;">Article Details</th>
+                    <th>Category</th>
+                    <th>Author</th>
+                    <th>Published Date</th>
+                    <th class="text-center">Views</th>
+                    <th class="text-end pe-4">Action</th>
+                </tr>
+            </thead>
+            <tbody id="trendingTableBody">
+                <tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2 text-danger"></div>Loading top trending articles...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Breakdown Tables Row -->
+<div class="row g-4 mb-4">
+    <!-- Category Breakdown Table -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-folder-fill text-primary me-2"></i>Articles by Category</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Category Name</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Active</th>
+                            <th class="text-center pe-4">Inactive</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoryTableBody">
+                        <tr><td colspan="4" class="text-center py-4 text-muted">Loading category data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Author Breakdown Table -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-person-badge-fill text-primary me-2"></i>Articles by Author</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Author Name</th>
+                            <th class="text-center pe-4">Articles Contributed</th>
+                        </tr>
+                    </thead>
+                    <tbody id="authorTableBody">
+                        <tr><td colspan="2" class="text-center py-4 text-muted">Loading author data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let barChartInstance = null;
+    let pieChartInstance = null;
+
+    document.addEventListener("DOMContentLoaded", async function () {
+        await loadCategoriesDropdown();
+        generateReport();
+        loadTrendingArticles();
+    });
+
+    async function loadCategoriesDropdown() {
+        try {
+            const res = await fetch(`${window.CORE_API_URL}category`);
+            if (res.ok) {
+                const cats = await res.json();
+                const sel = document.getElementById("reportCategorySelect");
+                cats.forEach(c => {
+                    const opt = document.createElement("option");
+                    opt.value = c.categoryId;
+                    opt.textContent = c.categoryName;
+                    sel.appendChild(opt);
+                });
+            }
+        } catch (e) {
+            console.warn("Could not load categories dropdown:", e);
+        }
+    }
+
+    function resetReportPeriod() {
+        document.getElementById("reportStartDate").value = "";
+        document.getElementById("reportEndDate").value = "";
+        document.getElementById("reportCategorySelect").value = "";
+        generateReport();
+        loadTrendingArticles();
+    }
+
+    let currentTrendingArticles = [];
+
+    async function loadTrendingArticles(highlightId = null) {
+        const tbody = document.getElementById("trendingTableBody");
+        try {
+            const res = await authenticatedFetch(`${window.ANALYTICS_API_URL}analytics/trending?top=5`);
+            if (!res.ok) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No trending data available.</td></tr>';
+                return;
+            }
+
+            const items = await res.json();
+            if (!items || items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No trending articles found.</td></tr>';
+                return;
+            }
+
+            currentTrendingArticles = items;
+            renderTrendingTable(items, highlightId);
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">Error loading trending: ${escapeHtml(e.message)}</td></tr>`;
+        }
+    }
+
+    function renderTrendingTable(items, highlightId = null) {
+        const tbody = document.getElementById("trendingTableBody");
+        if (!tbody) return;
+
+        let html = '';
+        items.forEach((item, idx) => {
+            let rankBadge = '';
+            if (idx === 0) rankBadge = '<span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm"><i class="bi bi-trophy-fill me-1"></i>#1</span>';
+            else if (idx === 1) rankBadge = '<span class="badge bg-secondary text-white px-3 py-2 rounded-pill fw-bold shadow-sm"><i class="bi bi-award-fill me-1"></i>#2</span>';
+            else if (idx === 2) rankBadge = '<span class="badge bg-warning-subtle text-warning border px-3 py-2 rounded-pill fw-bold"><i class="bi bi-award me-1"></i>#3</span>';
+            else rankBadge = `<span class="badge bg-light text-dark border px-3 py-2 rounded-pill">#${idx + 1}</span>`;
+
+            const isHighlighted = highlightId && (item.newsArticleId || '').toString() === highlightId.toString();
+            const rowClass = isHighlighted ? 'table-warning' : '';
+            const highlightStyle = isHighlighted ? 'background-color: rgba(255, 193, 7, 0.2); transition: background-color 1.5s ease;' : '';
+
+            const imgHtml = item.imageUrl 
+                ? `<img src="${item.imageUrl}" class="rounded-3 object-fit-cover shadow-sm me-3" style="width: 52px; height: 52px;" alt="" />`
+                : `<div class="bg-light border rounded-3 d-flex align-items-center justify-content-center me-3" style="width: 52px; height: 52px;"><i class="bi bi-newspaper text-muted"></i></div>`;
+
+            const dateStr = item.createdDate ? new Date(item.createdDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+
+            html += `
+                <tr id="trending-row-${item.newsArticleId}" class="${rowClass}" style="${highlightStyle}">
+                    <td class="ps-4 text-center">${rankBadge}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            ${imgHtml}
+                            <div>
+                                <a href="/NewsDetail?id=${encodeURIComponent(item.newsArticleId)}" class="fw-bold text-dark text-decoration-none text-primary-hover d-block mb-1">
+                                    ${escapeHtml(item.newsTitle || 'Untitled')}
+                                </a>
+                                <small class="text-muted text-truncate d-block" style="max-width: 380px;">${escapeHtml(item.headline || '')}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge bg-primary-subtle text-primary border">${escapeHtml(item.categoryName || 'General')}</span></td>
+                    <td><small class="fw-semibold text-secondary"><i class="bi bi-person me-1"></i>${escapeHtml(item.authorName || 'Staff')}</small></td>
+                    <td><small class="text-muted font-monospace">${dateStr}</small></td>
+                    <td class="text-center">
+                        <span class="badge ${isHighlighted ? 'bg-success' : 'bg-danger'} text-white px-3 py-2 rounded-pill fw-bold shadow-sm" style="transition: all 0.3s ease;">
+                            <i class="bi bi-eye-fill me-1"></i>${(item.viewCount || 0).toLocaleString()}
+                        </span>
+                        ${isHighlighted ? '<span class="badge bg-warning text-dark ms-1 small" style="font-size: 0.65rem;">+1 View</span>' : ''}
+                    </td>
+                    <td class="text-end pe-4">
+                        <a href="/NewsDetail?id=${encodeURIComponent(item.newsArticleId)}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>Read
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+
+        // Auto remove highlight styling after 2.5s
+        if (highlightId) {
+            setTimeout(() => {
+                const row = document.getElementById(`trending-row-${highlightId}`);
+                if (row) {
+                    row.style.backgroundColor = '';
+                    row.classList.remove('table-warning');
+                }
+            }, 2500);
+        }
+    }
+
+    // Real-Time SignalR Listener: Auto update view count & re-order trending rank
+    window.addEventListener("funews:viewUpdated", function (e) {
+        const updated = e.detail;
+        if (!updated || !updated.articleId) return;
+
+        const targetId = updated.articleId.toString();
+        const existingIdx = currentTrendingArticles.findIndex(a => (a.newsArticleId || '').toString() === targetId);
+
+        if (existingIdx !== -1) {
+            // Update view count
+            currentTrendingArticles[existingIdx].viewCount = updated.viewCount;
+
+            // Re-sort leaderboard descending by viewCount
+            currentTrendingArticles.sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
+
+            // Re-render table with visual highlight pulse
+            renderTrendingTable(currentTrendingArticles, targetId);
+        } else {
+            // In case article newly surpassed others and entered Top 5
+            loadTrendingArticles(targetId);
+        }
+    });
+
+    async function generateReport() {
+        const start = document.getElementById("reportStartDate").value;
+        const end = document.getElementById("reportEndDate").value;
+        const cat = document.getElementById("reportCategorySelect").value;
+
+        let query = `${window.ANALYTICS_API_URL}analytics/dashboard?`;
+        if (start) query += `startDate=${encodeURIComponent(start)}&`;
+        if (end) query += `endDate=${encodeURIComponent(end)}&`;
+        if (cat) query += `categoryId=${encodeURIComponent(cat)}&`;
+
+        try {
+            const res = await authenticatedFetch(query);
+            if (!res.ok) {
+                showToast("Failed to fetch analytics from Analytics API.", false);
+                return;
+            }
+
+            const data = await res.json();
+            renderKPIs(data);
+            renderCharts(data);
+            renderTables(data);
+        } catch (err) {
+            showToast("Network error connecting to Analytics service: " + err.message, false);
+        }
+    }
+
+    function renderKPIs(data) {
+        document.getElementById("kpiTotal").innerText = data.totalArticles ?? 0;
+        document.getElementById("kpiActive").innerText = data.activeArticles ?? 0;
+        document.getElementById("kpiInactive").innerText = data.inactiveArticles ?? 0;
+    }
+
+    function renderCharts(data) {
+        // 1. Bar Chart: Categories
+        const catLabels = (data.categoryStats || []).map(c => c.categoryName);
+        const catActiveData = (data.categoryStats || []).map(c => c.activeCount);
+        const catInactiveData = (data.categoryStats || []).map(c => c.inactiveCount);
+
+        const ctxBar = document.getElementById("categoryBarChart").getContext("2d");
+        if (barChartInstance) barChartInstance.destroy();
+
+        barChartInstance = new Chart(ctxBar, {
+            type: "bar",
+            data: {
+                labels: catLabels.length ? catLabels : ["No Data"],
+                datasets: [
+                    {
+                        label: "Active (Published)",
+                        data: catActiveData.length ? catActiveData : [0],
+                        backgroundColor: "#198754",
+                        borderRadius: 6
+                    },
+                    {
+                        label: "Inactive (Draft)",
+                        data: catInactiveData.length ? catInactiveData : [0],
+                        backgroundColor: "#6c757d",
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: "top" }
+                },
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+
+        // 2. Doughnut Chart: Status
+        const ctxPie = document.getElementById("statusPieChart").getContext("2d");
+        if (pieChartInstance) pieChartInstance.destroy();
+
+        pieChartInstance = new Chart(ctxPie, {
+            type: "doughnut",
+            data: {
+                labels: ["Active", "Inactive"],
+                datasets: [{
+                    data: [data.activeArticles ?? 0, data.inactiveArticles ?? 0],
+                    backgroundColor: ["#198754", "#6c757d"],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: "bottom" }
+                }
+            }
+        });
+    }
+
+    function renderTables(data) {
+        // Categories table
+        const catTbody = document.getElementById("categoryTableBody");
+        catTbody.innerHTML = "";
+        if (!data.categoryStats || data.categoryStats.length === 0) {
+            catTbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">No category data.</td></tr>`;
+        } else {
+            data.categoryStats.forEach(c => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td class="ps-4 fw-semibold">${escapeHtml(c.categoryName)}</td>
+                    <td class="text-center fw-bold">${c.totalCount}</td>
+                    <td class="text-center text-success">${c.activeCount}</td>
+                    <td class="text-center text-secondary pe-4">${c.inactiveCount}</td>
+                `;
+                catTbody.appendChild(tr);
+            });
+        }
+
+        // Author table
+        const authTbody = document.getElementById("authorTableBody");
+        authTbody.innerHTML = "";
+        if (!data.authorStats || data.authorStats.length === 0) {
+            authTbody.innerHTML = `<tr><td colspan="2" class="text-center py-4 text-muted">No author data.</td></tr>`;
+        } else {
+            data.authorStats.forEach(a => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td class="ps-4 fw-semibold">${escapeHtml(a.authorName)}</td>
+                    <td class="text-center pe-4 fw-bold">${a.articleCount}</td>
+                `;
+                authTbody.appendChild(tr);
+            });
+        }
+    }
+
+    async function exportToExcel() {
+        const spinner = document.getElementById("exportSpinner");
+        spinner.classList.remove("d-none");
+
+        const start = document.getElementById("reportStartDate").value;
+        const end = document.getElementById("reportEndDate").value;
+        const cat = document.getElementById("reportCategorySelect").value;
+
+        let query = `${window.ANALYTICS_API_URL}analytics/export?`;
+        if (start) query += `startDate=${encodeURIComponent(start)}&`;
+        if (end) query += `endDate=${encodeURIComponent(end)}&`;
+        if (cat) query += `categoryId=${encodeURIComponent(cat)}&`;
+
+        try {
+            const res = await authenticatedFetch(query);
+            if (!res.ok) {
+                showToast("Failed to stream report from Analytics API.", false);
+                return;
+            }
+
+            const blob = await res.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = downloadUrl;
+            a.download = `FUNews_Analytics_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(downloadUrl);
+
+            showToast("Excel spreadsheet streamed and downloaded successfully!", true);
+        } catch (e) {
+            showToast("Error downloading report: " + e.message, false);
+        } finally {
+            spinner.classList.add("d-none");
+        }
+    }
+
+    async function testPollyResilience() {
+        const btn = document.getElementById("btnTestPolly");
+        const spinner = document.getElementById("pollySpinner");
+        btn.disabled = true;
+        spinner.classList.remove("d-none");
+        showToast("🚀 Đang gửi request kiểm thử Polly Retry qua Backend C#...", true);
+
+        try {
+            const startTime = performance.now();
+            const res = await fetch("?handler=TestPolly");
+            const data = await res.json();
+            const duration = ((performance.now() - startTime) / 1000).toFixed(2);
+
+            if (res.ok) {
+                showToast(`✅ [Polly Thành Công sau ${duration}s]: ${data.message || 'Hệ thống đã tự phục hồi thành công qua các nhịp Retry!'}`, true);
+            } else {
+                showToast(`❌ [Polly Thất Bại]: ${data.message || 'Không thể kết nối API'}`, false);
+            }
+        } catch (e) {
+            showToast("❌ Lỗi mạng: " + e.message, false);
+        } finally {
+            btn.disabled = false;
+            spinner.classList.add("d-none");
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+</script>
+}

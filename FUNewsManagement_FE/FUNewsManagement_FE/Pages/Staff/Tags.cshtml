@@ -1,0 +1,335 @@
+@page
+@model FUNewsManagement_FE.Pages.Staff.TagsModel
+@{
+    ViewData["Title"] = "Tag Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-tags-fill text-primary me-2"></i>Tag Management</h2>
+        <p class="text-muted mb-0">Manage keywords and hashtags attached to news articles (Staff only).</p>
+    </div>
+    <button type="button" class="btn btn-primary px-3 shadow-sm" onclick="openCreateTagModal()">
+        <i class="bi bi-plus-circle me-1"></i> Add New Tag
+    </button>
+</div>
+
+<!-- Search Card -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-3">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" id="tagSearchInput" class="form-control border-start-0" placeholder="Search tags by name or note..." onkeyup="filterTags()" />
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <button type="button" class="btn btn-outline-secondary w-100" onclick="resetTagFilters()">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Search
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tags Table Card -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="tagsTable">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">ID</th>
+                    <th>Tag Name</th>
+                    <th>Note / Description</th>
+                    <th>Associated Articles</th>
+                    <th class="text-end pe-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tagsTableBody">
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">
+                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div> Loading tags...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create / Edit Tag Modal -->
+<div class="modal fade" id="tagModal" tabindex="-1" aria-labelledby="tagModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="tagModalLabel"><i class="bi bi-tag-fill me-2"></i>Create Tag</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="tagForm">
+                    <input type="hidden" id="modalTagId" value="0" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tag Name <span class="text-danger">*</span></label>
+                        <input type="text" id="modalTagName" class="form-control" required placeholder="e.g. Artificial Intelligence" maxlength="50" />
+                        <small class="text-muted">Must be unique across the entire system.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Note / Description</label>
+                        <textarea id="modalTagNote" class="form-control" rows="3" placeholder="Brief note about the tag" maxlength="400"></textarea>
+                    </div>
+
+                    <div id="tagModalAlert" class="alert alert-danger py-2 d-none" role="alert"></div>
+                </form>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" id="btnSaveTag" onclick="saveTag()">
+                    <span id="saveTagSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    Save Tag
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Tag Confirmation Modal -->
+<div class="modal fade" id="deleteTagModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-trash3-fill me-2"></i>Confirm Tag Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <i class="bi bi-exclamation-triangle text-danger display-4 mb-3 d-block"></i>
+                <h5 class="fw-bold mb-2">Delete this Tag?</h5>
+                <p class="text-muted mb-1">Are you sure you want to delete tag:</p>
+                <p class="fw-bold fs-6 text-dark mb-3" id="deleteTagInfo"></p>
+                <div class="alert alert-warning text-start small mb-0">
+                    <i class="bi bi-shield-exclamation me-1"></i>
+                    <strong>System Integrity Rule:</strong> A tag cannot be deleted if it is currently assigned to any news articles.
+                </div>
+            </div>
+            <div class="modal-footer bg-light justify-content-center">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger px-4" id="btnConfirmDeleteTag" onclick="confirmDeleteTag()">
+                    <span id="deleteTagSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    Yes, Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let allTags = [];
+        let tagModalInstance = null;
+        let deleteTagModalInstance = null;
+        let selectedTagDeleteId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            tagModalInstance = new bootstrap.Modal(document.getElementById('tagModal'));
+            deleteTagModalInstance = new bootstrap.Modal(document.getElementById('deleteTagModal'));
+            loadTags();
+        });
+
+        async function loadTags() {
+            const tbody = document.getElementById('tagsTableBody');
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div> Loading tags...</td></tr>`;
+
+            try {
+                const response = await apiFetch('tag?$orderby=TagId asc');
+                if (response.ok) {
+                    allTags = await response.json();
+                    renderTags(allTags);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger">Failed to load tags. Status: ${response.status}</td></tr>`;
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger">Error connecting to server. Please ensure Backend API is running.</td></tr>`;
+            }
+        }
+
+        function renderTags(tags) {
+            const tbody = document.getElementById('tagsTableBody');
+            if (!tags || tags.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">No tags found.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            tags.forEach(t => {
+                html += `
+                    <tr>
+                        <td class="ps-4 fw-semibold text-secondary">#${t.tagId}</td>
+                        <td>
+                            <span class="badge bg-light text-dark border px-3 py-2 fs-6">
+                                <i class="bi bi-tag-fill me-1 text-primary"></i>${escapeHtml(t.tagName || '')}
+                            </span>
+                        </td>
+                        <td><small class="text-muted">${escapeHtml(t.note || 'N/A')}</small></td>
+                        <td>
+                            <span class="badge bg-light text-dark border px-2 py-1">
+                                <i class="bi bi-newspaper me-1"></i>${t.articleCount} articles
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <button type="button" class="btn btn-sm btn-outline-primary me-1" title="Edit Tag" onclick="openEditTagModal(${t.tagId})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete Tag" onclick="openDeleteTagModal(${t.tagId}, '${escapeHtml(t.tagName || '')}')">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function filterTags() {
+            const query = (document.getElementById('tagSearchInput').value || '').trim().toLowerCase();
+
+            const filtered = allTags.filter(t => {
+                return !query || 
+                    (t.tagName && t.tagName.toLowerCase().includes(query)) ||
+                    (t.note && t.note.toLowerCase().includes(query));
+            });
+
+            renderTags(filtered);
+        }
+
+        function resetTagFilters() {
+            document.getElementById('tagSearchInput').value = '';
+            renderTags(allTags);
+        }
+
+        function openCreateTagModal() {
+            document.getElementById('tagModalLabel').innerHTML = '<i class="bi bi-tag-fill me-2"></i>Create Tag';
+            document.getElementById('modalTagId').value = '0';
+            document.getElementById('modalTagName').value = '';
+            document.getElementById('modalTagNote').value = '';
+            document.getElementById('tagModalAlert').classList.add('d-none');
+            tagModalInstance.show();
+        }
+
+        function openEditTagModal(id) {
+            const tag = allTags.find(t => t.tagId === id);
+            if (!tag) return;
+
+            document.getElementById('tagModalLabel').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Edit Tag';
+            document.getElementById('modalTagId').value = tag.tagId;
+            document.getElementById('modalTagName').value = tag.tagName || '';
+            document.getElementById('modalTagNote').value = tag.note || '';
+            document.getElementById('tagModalAlert').classList.add('d-none');
+            tagModalInstance.show();
+        }
+
+        async function saveTag() {
+            const id = parseInt(document.getElementById('modalTagId').value, 10);
+            const name = document.getElementById('modalTagName').value.trim();
+            const note = document.getElementById('modalTagNote').value.trim();
+            const alertEl = document.getElementById('tagModalAlert');
+
+            if (!name) {
+                alertEl.textContent = 'Tag name is required.';
+                alertEl.classList.remove('d-none');
+                return;
+            }
+
+            const btn = document.getElementById('btnSaveTag');
+            const spinner = document.getElementById('saveTagSpinner');
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+            alertEl.classList.add('d-none');
+
+            try {
+                let response;
+                if (id === 0) {
+                    response = await apiFetch('tag', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            tagName: name,
+                            note: note || null
+                        })
+                    });
+                } else {
+                    response = await apiFetch(`tag/${id}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            tagName: name,
+                            note: note || null
+                        })
+                    });
+                }
+
+                if (response.ok) {
+                    tagModalInstance.hide();
+                    showToast(id === 0 ? 'Tag created successfully!' : 'Tag updated successfully!', 'success');
+                    await loadTags();
+                } else {
+                    const err = await response.json();
+                    alertEl.textContent = err.message || 'An error occurred while saving tag.';
+                    alertEl.classList.remove('d-none');
+                }
+            } catch (err) {
+                alertEl.textContent = 'Error: ' + err.message;
+                alertEl.classList.remove('d-none');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+            }
+        }
+
+        function openDeleteTagModal(id, name) {
+            selectedTagDeleteId = id;
+            document.getElementById('deleteTagInfo').textContent = `${name} (ID: #${id})`;
+            deleteTagModalInstance.show();
+        }
+
+        async function confirmDeleteTag() {
+            if (!selectedTagDeleteId) return;
+
+            const btn = document.getElementById('btnConfirmDeleteTag');
+            const spinner = document.getElementById('deleteTagSpinner');
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+
+            try {
+                const response = await apiFetch(`tag/${selectedTagDeleteId}`, {
+                    method: 'DELETE'
+                });
+
+                deleteTagModalInstance.hide();
+
+                if (response.ok || response.status === 204) {
+                    showToast('Tag deleted successfully!', 'success');
+                    await loadTags();
+                } else {
+                    let errMsg = 'Failed to delete tag.';
+                    try {
+                        const err = await response.json();
+                        errMsg = err.message || errMsg;
+                    } catch {}
+                    showToast(errMsg, 'danger');
+                }
+            } catch (err) {
+                deleteTagModalInstance.hide();
+                showToast('Error: ' + err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+                selectedTagDeleteId = null;
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+    </script>
+}

@@ -1,0 +1,830 @@
+@page
+@model FUNewsManagement_FE.Pages.Staff.ArticlesModel
+@{
+    ViewData["Title"] = "News Articles Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-file-earmark-richtext text-primary me-2"></i>News Articles Management</h2>
+        <p class="text-muted mb-0">Publish, update, duplicate, and organize university news content (Staff only).</p>
+    </div>
+    <div>
+        <button type="button" class="btn btn-primary px-4 shadow-sm" onclick="openCreateArticleModal()">
+            <i class="bi bi-plus-lg me-1"></i> Create Article
+        </button>
+    </div>
+</div>
+
+<!-- Search & Filter Card -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+        <div class="row g-3">
+            <div class="col-md-5">
+                <label class="form-label fw-semibold">Search Articles</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <input type="text" id="articleSearchInput" class="form-control" placeholder="Search by title, headline, author, or source..." oninput="filterArticles()" />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Filter by Category</label>
+                <select id="categoryFilter" class="form-select" onchange="filterArticles()">
+                    <option value="">-- All Categories --</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">Status</label>
+                <select id="articleStatusFilter" class="form-select" onchange="filterArticles()">
+                    <option value="">All Statuses</option>
+                    <option value="active">Active (Published)</option>
+                    <option value="inactive">Inactive (Draft)</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-secondary w-100" onclick="resetArticleFilters()">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Articles Table Card -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Article Details</th>
+                        <th>Category</th>
+                        <th>Tags</th>
+                        <th>Status</th>
+                        <th>Created Info</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="articlesTableBody">
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <div class="spinner-border spinner-border-sm text-primary me-2"></div> Loading articles...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Create / Edit Article Modal -->
+<div class="modal fade" id="articleModal" tabindex="-1" aria-labelledby="articleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow border-0 rounded-4">
+            <div class="modal-header bg-primary text-white rounded-top-4">
+                <h5 class="modal-title fw-bold" id="articleModalLabel">Create News Article</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="articleForm">
+                    <input type="hidden" id="modalArticleId" value="" />
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">News Title <span class="text-danger">*</span></label>
+                            <input type="text" id="modalArticleTitle" class="form-control" required placeholder="Enter compelling news title" maxlength="400" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                            <select id="modalArticleCategory" class="form-select" required>
+                                <option value="">-- Select Category --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Headline <span class="text-danger">*</span></label>
+                        <input type="text" id="modalArticleHeadline" class="form-control" required placeholder="Short summary headline" maxlength="150" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">News Content <span class="text-danger">*</span></label>
+                        <textarea id="modalArticleContent" class="form-control" rows="5" required placeholder="Full news article content..." maxlength="4000"></textarea>
+                    </div>
+
+                    <!-- Article Cover Image: Dual External URL & Local Upload -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Cover Image (Optional)</label>
+                        <div class="input-group mb-2 shadow-sm">
+                            <span class="input-group-text bg-white"><i class="bi bi-link-45deg text-primary"></i></span>
+                            <input type="url" id="modalArticleImageUrl" class="form-control" placeholder="Paste external image URL (e.g. Unsplash, Cloudinary)..." oninput="onImageUrlInput()" />
+                            <button class="btn btn-outline-secondary" type="button" onclick="clearArticleImage()">Clear</button>
+                        </div>
+                        <div class="input-group shadow-sm">
+                            <span class="input-group-text bg-white"><i class="bi bi-upload text-success"></i></span>
+                            <input type="file" id="modalArticleImageFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" onchange="uploadArticleImage(this)" />
+                            <span class="input-group-text bg-light text-muted small">Max 2MB</span>
+                        </div>
+                        <div id="imagePreviewContainer" class="d-none mt-2 p-2 bg-light border rounded-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <img id="imagePreview" src="" alt="Cover Preview" class="img-thumbnail rounded shadow-sm" style="max-height: 120px; max-width: 200px; object-fit: cover;" onerror="onImagePreviewError()" />
+                                <div class="flex-grow-1">
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 mb-1" id="imagePreviewBadge">Image Loaded</span>
+                                    <small class="text-muted d-block text-truncate" id="imagePreviewUrlText" style="max-width: 320px;"></small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">News Source</label>
+                            <input type="text" id="modalArticleSource" class="form-control" placeholder="e.g. University Press / Faculty" maxlength="400" />
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center mt-4">
+                            <div class="form-check form-switch fs-5">
+                                <input class="form-check-input" type="checkbox" role="switch" id="modalArticleStatus" checked />
+                                <label class="form-check-label fs-6 fw-semibold ms-2" for="modalArticleStatus">Published (Active)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Tag Suggestions & Assign Tags -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label fw-semibold mb-0">Assign Tags / Topics</label>
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm" id="btnSuggestAiTags" onclick="suggestAiTags()">
+                                <span id="aiSuggestSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                                <i class="bi bi-stars text-warning me-1"></i> AI Tag Suggestions
+                            </button>
+                        </div>
+
+                        <!-- AI Suggested Chips Container -->
+                        <div id="aiSuggestedChipsContainer" class="p-2 mb-2 bg-light rounded-3 border d-none">
+                            <small class="text-muted d-block mb-1 fw-semibold"><i class="bi bi-lightbulb-fill text-warning me-1"></i>AI Suggested Tags (Click badge to auto-select):</small>
+                            <div id="aiChipsList" class="d-flex flex-wrap gap-1"></div>
+                        </div>
+
+                        <div class="p-3 bg-light rounded-3 border" id="tagsCheckboxContainer" style="max-height: 150px; overflow-y: auto;">
+                            <span class="text-muted small">Loading tags...</span>
+                        </div>
+                    </div>
+
+                    <div id="articleModalAlert" class="alert alert-danger py-2 d-none" role="alert"></div>
+                </form>
+            </div>
+            <div class="modal-footer bg-light rounded-bottom-4">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" id="btnSaveArticle" onclick="saveArticle()">
+                    <span id="saveArticleSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    Save Article
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Article Confirmation Modal -->
+<div class="modal fade" id="deleteArticleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow rounded-4 border-0">
+            <div class="modal-header bg-danger text-white rounded-top-4">
+                <h5 class="modal-title fw-bold"><i class="bi bi-trash3-fill me-2"></i>Delete News Article</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <i class="bi bi-exclamation-triangle text-danger display-4 mb-3 d-block"></i>
+                <h5 class="fw-bold mb-2">Delete this Article?</h5>
+                <p class="text-muted mb-2">Are you sure you want to delete:</p>
+                <p class="fw-bold fs-6 text-dark" id="deleteArticleTitle"></p>
+                <small class="text-muted">Associated tags in NewsTag junction will also be unlinked.</small>
+            </div>
+            <div class="modal-footer bg-light justify-content-center rounded-bottom-4">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger px-4" id="btnConfirmDeleteArticle" onclick="confirmDeleteArticle()">
+                    <span id="deleteArticleSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    Yes, Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let allArticles = [];
+        let allCategories = [];
+        let allTags = [];
+        let articleModalInstance = null;
+        let deleteArticleModalInstance = null;
+        let selectedArticleDeleteId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            articleModalInstance = new bootstrap.Modal(document.getElementById('articleModal'));
+            deleteArticleModalInstance = new bootstrap.Modal(document.getElementById('deleteArticleModal'));
+            await Promise.all([loadCategories(), loadTags()]);
+            await loadArticles();
+
+            // Auto-open article if viewId is passed in URL query
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewId = urlParams.get('viewId');
+            if (viewId) {
+                openEditArticleModal(viewId);
+            }
+        });
+
+        async function loadCategories() {
+            try {
+                const response = await authenticatedFetch(`${window.CORE_API_URL}category?$orderby=CategoryName asc`);
+                if (response.ok) {
+                    allCategories = await response.json();
+                    const filterSelect = document.getElementById('categoryFilter');
+                    const modalSelect = document.getElementById('modalArticleCategory');
+
+                    filterSelect.innerHTML = '<option value="">-- All Categories --</option>';
+                    modalSelect.innerHTML = '<option value="">-- Select Category --</option>';
+
+                    allCategories.forEach(c => {
+                        const opt1 = document.createElement('option');
+                        opt1.value = c.categoryId;
+                        opt1.textContent = c.categoryName;
+                        filterSelect.appendChild(opt1);
+
+                        const opt2 = document.createElement('option');
+                        opt2.value = c.categoryId;
+                        opt2.textContent = c.categoryName;
+                        modalSelect.appendChild(opt2);
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading categories:', err);
+            }
+        }
+
+        async function loadTags() {
+            try {
+                const response = await authenticatedFetch(`${window.CORE_API_URL}tag?$orderby=TagName asc`);
+                if (response.ok) {
+                    allTags = await response.json();
+                    renderTagsCheckboxList();
+                }
+            } catch (err) {
+                console.error('Error loading tags:', err);
+            }
+        }
+
+        function renderTagsCheckboxList(selectedTagIds = []) {
+            const container = document.getElementById('tagsCheckboxContainer');
+            if (!allTags || allTags.length === 0) {
+                container.innerHTML = '<span class="text-muted small">No tags created yet.</span>';
+                return;
+            }
+
+            let html = '<div class="row g-2">';
+            allTags.forEach(t => {
+                const isChecked = selectedTagIds.includes(t.tagId) ? 'checked' : '';
+                html += `
+                    <div class="col-md-4 col-sm-6">
+                        <div class="form-check">
+                            <input class="form-check-input tag-checkbox" type="checkbox" value="${t.tagId}" data-tagname="${escapeHtml(t.tagName)}" id="tagCheck_${t.tagId}" ${isChecked} />
+                            <label class="form-check-label small" for="tagCheck_${t.tagId}">${escapeHtml(t.tagName)}</label>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        async function loadArticles() {
+            const tbody = document.getElementById('articlesTableBody');
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div> Loading news articles...</td></tr>`;
+
+            try {
+                const response = await authenticatedFetch(`${window.CORE_API_URL}news/my-articles?$orderby=CreatedDate desc`);
+                if (response.ok) {
+                    allArticles = await response.json();
+                    renderArticles(allArticles);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Failed to load articles (HTTP ${response.status}).</td></tr>`;
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Error connecting to server: ${err.message}</td></tr>`;
+            }
+        }
+
+        function renderArticles(articles) {
+            const tbody = document.getElementById('articlesTableBody');
+            if (!articles || articles.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No articles found.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            articles.forEach(a => {
+                const statusBadge = a.newsStatus
+                    ? '<span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="bi bi-check-circle me-1"></i>Active</span>'
+                    : '<span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1"><i class="bi bi-dash-circle me-1"></i>Inactive</span>';
+
+                let tagBadges = '';
+                if (a.tags && a.tags.length > 0) {
+                    tagBadges = a.tags.map(t => `<span class="badge bg-light text-dark border me-1 mb-1"><i class="bi bi-tag-fill me-1 text-primary"></i>${escapeHtml(t.tagName)}</span>`).join('');
+                } else {
+                    tagBadges = '<span class="text-muted small">No tags</span>';
+                }
+
+                const createdInfo = `<div class="small fw-semibold text-dark"><i class="bi bi-person me-1"></i>${escapeHtml(a.createdByName || 'Staff')}</div><small class="text-muted">${formatDate(a.createdDate)}</small>`;
+
+                const imgHtml = a.imageUrl 
+                    ? `<img src="${escapeHtml(a.imageUrl)}" alt="Cover" class="rounded me-2" style="width: 45px; height: 45px; object-fit: cover;" />`
+                    : `<div class="bg-light rounded me-2 d-flex align-items-center justify-content-center text-muted" style="width: 45px; height: 45px;"><i class="bi bi-image"></i></div>`;
+
+                html += `
+                    <tr>
+                        <td class="ps-4 fw-bold text-secondary">#${a.newsArticleId}</td>
+                        <td style="max-width: 320px;">
+                            <div class="d-flex align-items-center">
+                                ${imgHtml}
+                                <div class="overflow-hidden">
+                                    <div class="fw-bold text-dark text-truncate" title="${escapeHtml(a.newsTitle || '')}">${escapeHtml(a.newsTitle || '')}</div>
+                                    <small class="text-muted text-truncate d-block" title="${escapeHtml(a.headline || '')}">${escapeHtml(a.headline || '')}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                ${escapeHtml(a.categoryName || 'Uncategorized')}
+                            </span>
+                        </td>
+                        <td style="max-width: 180px;">${tagBadges}</td>
+                        <td>${statusBadge}</td>
+                        <td>${createdInfo}</td>
+                        <td class="text-end pe-4 text-nowrap">
+                            <button type="button" class="btn btn-sm btn-outline-primary me-1" title="Edit Article" onclick="openEditArticleModal('${a.newsArticleId}')">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-info me-1" title="Duplicate Article" onclick="duplicateArticle('${a.newsArticleId}')">
+                                <i class="bi bi-copy"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete Article" onclick="openDeleteArticleModal('${a.newsArticleId}', '${escapeHtml(a.newsTitle || '')}')">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function filterArticles() {
+            const query = (document.getElementById('articleSearchInput').value || '').trim().toLowerCase();
+            const catId = document.getElementById('categoryFilter').value;
+            const status = document.getElementById('articleStatusFilter').value;
+
+            const filtered = allArticles.filter(a => {
+                const matchesQuery = !query ||
+                    (a.newsTitle && a.newsTitle.toLowerCase().includes(query)) ||
+                    (a.headline && a.headline.toLowerCase().includes(query)) ||
+                    (a.createdByName && a.createdByName.toLowerCase().includes(query)) ||
+                    (a.newsSource && a.newsSource.toLowerCase().includes(query));
+
+                const matchesCategory = !catId || (a.categoryId && a.categoryId.toString() === catId);
+
+                let matchesStatus = true;
+                if (status === 'active') matchesStatus = a.newsStatus === true;
+                if (status === 'inactive') matchesStatus = a.newsStatus === false;
+
+                return matchesQuery && matchesCategory && matchesStatus;
+            });
+
+            renderArticles(filtered);
+        }
+
+        function resetArticleFilters() {
+            document.getElementById('articleSearchInput').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('articleStatusFilter').value = '';
+            renderArticles(allArticles);
+        }
+
+        function openCreateArticleModal() {
+            document.getElementById('articleModalLabel').innerHTML = '<i class="bi bi-file-earmark-plus me-2"></i>Create News Article';
+            document.getElementById('modalArticleId').value = '';
+            document.getElementById('modalArticleTitle').value = '';
+            document.getElementById('modalArticleHeadline').value = '';
+            document.getElementById('modalArticleContent').value = '';
+            document.getElementById('modalArticleSource').value = '';
+            document.getElementById('modalArticleCategory').value = '';
+            document.getElementById('modalArticleStatus').checked = true;
+            clearArticleImage();
+            document.getElementById('aiSuggestedChipsContainer').classList.add('d-none');
+            document.getElementById('aiChipsList').innerHTML = '';
+            renderTagsCheckboxList([]);
+            document.getElementById('articleModalAlert').classList.add('d-none');
+            articleModalInstance.show();
+        }
+
+        function openEditArticleModal(id) {
+            const article = allArticles.find(a => a.newsArticleId === id);
+            if (!article) return;
+
+            document.getElementById('articleModalLabel').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Edit News Article';
+            document.getElementById('modalArticleId').value = article.newsArticleId;
+            document.getElementById('modalArticleTitle').value = article.newsTitle || '';
+            document.getElementById('modalArticleHeadline').value = article.headline || '';
+            document.getElementById('modalArticleContent').value = article.newsContent || '';
+            document.getElementById('modalArticleSource').value = article.newsSource || '';
+            document.getElementById('modalArticleCategory').value = article.categoryId || '';
+            document.getElementById('modalArticleStatus').checked = article.newsStatus === true;
+
+            // Handle Image preview
+            if (article.imageUrl) {
+                document.getElementById('modalArticleImageUrl').value = article.imageUrl;
+                updateImagePreview(article.imageUrl, 'Current Image');
+            } else {
+                clearArticleImage();
+            }
+
+            document.getElementById('aiSuggestedChipsContainer').classList.add('d-none');
+            document.getElementById('aiChipsList').innerHTML = '';
+
+            const selectedTagIds = (article.tags || []).map(t => t.tagId);
+            renderTagsCheckboxList(selectedTagIds);
+
+            document.getElementById('articleModalAlert').classList.add('d-none');
+            articleModalInstance.show();
+        }
+
+        // Image Handling
+        function onImageUrlInput() {
+            const url = document.getElementById('modalArticleImageUrl').value.trim();
+            if (url) {
+                updateImagePreview(url, 'External URL');
+            } else {
+                clearArticleImage();
+            }
+        }
+
+        function onImagePreviewError() {
+            const badge = document.getElementById('imagePreviewBadge');
+            if (badge) {
+                badge.className = 'badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 mb-1';
+                badge.innerText = 'Invalid Image URL';
+            }
+        }
+
+        function updateImagePreview(url, sourceLabel = 'Image Loaded') {
+            const container = document.getElementById('imagePreviewContainer');
+            const img = document.getElementById('imagePreview');
+            const badge = document.getElementById('imagePreviewBadge');
+            const urlText = document.getElementById('imagePreviewUrlText');
+
+            if (img) img.src = url;
+            if (badge) {
+                badge.className = 'badge bg-success-subtle text-success border border-success-subtle px-2 py-1 mb-1';
+                badge.innerText = sourceLabel;
+            }
+            if (urlText) urlText.innerText = url;
+            if (container) container.classList.remove('d-none');
+        }
+
+        // Image Upload Handler
+        async function uploadArticleImage(input) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+
+            if (file.size > 2 * 1024 * 1024) {
+                showToast("File size exceeds the 2MB limit.", false);
+                input.value = "";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const res = await fetch(`${window.CORE_API_URL}news/upload-image`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${getAuthToken()}`
+                    },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('modalArticleImageUrl').value = data.imageUrl;
+                    updateImagePreview(data.imageUrl, 'Cloudinary Uploaded');
+                    showToast("Cover image uploaded to Cloudinary successfully!", true);
+                } else {
+                    let errMsg = `Upload failed (Status ${res.status})`;
+                    try {
+                        const err = await res.json();
+                        errMsg = err.message || errMsg;
+                    } catch (_) {
+                        try { errMsg = (await res.text()) || errMsg; } catch (__) {}
+                    }
+                    showToast(errMsg, false);
+                }
+            } catch (e) {
+                showToast("Upload error: " + e.message, false);
+            }
+        }
+
+        function clearArticleImage() {
+            const fileInput = document.getElementById('modalArticleImageFile');
+            if (fileInput) fileInput.value = '';
+            const urlInput = document.getElementById('modalArticleImageUrl');
+            if (urlInput) urlInput.value = '';
+            const img = document.getElementById('imagePreview');
+            if (img) img.src = '';
+            const container = document.getElementById('imagePreviewContainer');
+            if (container) container.classList.add('d-none');
+        }
+
+        // AI Tag Suggestion Call
+        async function suggestAiTags() {
+            const headline = document.getElementById('modalArticleHeadline').value.trim();
+            const content = document.getElementById('modalArticleContent').value.trim();
+            const title = document.getElementById('modalArticleTitle').value.trim();
+
+            const fullText = `${title}\n${headline}\n${content}`.trim();
+            if (!fullText) {
+                alert("Please enter title, headline, or content before asking for AI Tag suggestions.");
+                return;
+            }
+
+            const btn = document.getElementById('btnSuggestAiTags');
+            const spinner = document.getElementById('aiSuggestSpinner');
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+
+            try {
+                const res = await fetch(`${window.AI_API_URL}ai/suggest-tags`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ content: fullText })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    renderAiChips(data.tags || []);
+                } else {
+                    alert("AI API service returned status " + res.status);
+                }
+            } catch (e) {
+                alert("Could not connect to AI API service: " + e.message);
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+            }
+        }
+
+        function renderAiChips(tags) {
+            const container = document.getElementById('aiSuggestedChipsContainer');
+            const list = document.getElementById('aiChipsList');
+            list.innerHTML = "";
+
+            if (!tags || tags.length === 0) {
+                list.innerHTML = '<span class="text-muted small">No tags recommended for this content.</span>';
+                container.classList.remove('d-none');
+                return;
+            }
+
+            tags.forEach(t => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "btn btn-sm btn-outline-primary rounded-pill py-1 px-3 d-flex align-items-center gap-1 shadow-sm";
+                btn.innerHTML = `<i class="bi bi-tag-fill text-warning"></i> <strong>${escapeHtml(t.name)}</strong> <span class="badge bg-primary rounded-pill">${Math.round(t.confidence * 100)}%</span>`;
+                btn.onclick = () => selectTagByName(t.name);
+                list.appendChild(btn);
+            });
+
+            container.classList.remove('d-none');
+        }
+
+        async function selectTagByName(tagName) {
+            if (!tagName) return;
+            tagName = tagName.trim();
+
+            let existingTag = (allTags || []).find(t => t.tagName && t.tagName.toLowerCase() === tagName.toLowerCase());
+
+            if (existingTag) {
+                const cb = document.getElementById(`tagCheck_${existingTag.tagId}`);
+                if (cb) {
+                    cb.checked = true;
+                }
+                showToast(`Tag "${existingTag.tagName}" selected!`, true);
+                return;
+            }
+
+            // Tag does not exist in DB: automatically create it via POST /api/tag
+            try {
+                const res = await authenticatedFetch(`${window.CORE_API_URL}tag`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tagName: tagName, note: 'AI Generated' })
+                });
+
+                if (res.ok) {
+                    const newTag = await res.json();
+                    allTags.push(newTag);
+
+                    // Append newly created tag as checked checkbox in the form
+                    const container = document.getElementById('tagsCheckboxContainer');
+                    let row = container.querySelector('.row');
+                    if (!row) {
+                        container.innerHTML = '<div class="row g-2"></div>';
+                        row = container.querySelector('.row');
+                    }
+                    const col = document.createElement('div');
+                    col.className = 'col-md-4 col-sm-6';
+                    col.innerHTML = `
+                        <div class="form-check">
+                            <input class="form-check-input tag-checkbox" type="checkbox" value="${newTag.tagId}" data-tagname="${escapeHtml(newTag.tagName)}" id="tagCheck_${newTag.tagId}" checked />
+                            <label class="form-check-label small" for="tagCheck_${newTag.tagId}">${escapeHtml(newTag.tagName)}</label>
+                        </div>
+                    `;
+                    row.appendChild(col);
+
+                    showToast(`Tag "${tagName}" created and added!`, true);
+                } else {
+                    let errMsg = `Failed to create tag "${tagName}" (Status ${res.status})`;
+                    try {
+                        const err = await res.json();
+                        errMsg = err.message || errMsg;
+                    } catch (_) {
+                        try { errMsg = (await res.text()) || errMsg; } catch (__) {}
+                    }
+                    showToast(errMsg, false);
+                }
+            } catch (err) {
+                showToast(`Error creating tag "${tagName}": ${err.message}`, false);
+            }
+        }
+
+        async function saveArticle() {
+            const id = document.getElementById('modalArticleId').value;
+            const title = document.getElementById('modalArticleTitle').value.trim();
+            const headline = document.getElementById('modalArticleHeadline').value.trim();
+            const content = document.getElementById('modalArticleContent').value.trim();
+            const source = document.getElementById('modalArticleSource').value.trim();
+            const catIdVal = document.getElementById('modalArticleCategory').value;
+            const status = document.getElementById('modalArticleStatus').checked;
+            const imageUrl = document.getElementById('modalArticleImageUrl').value.trim();
+            const alertEl = document.getElementById('articleModalAlert');
+
+            if (!title || !headline || !content || !catIdVal) {
+                alertEl.textContent = 'Please fill in Title, Headline, Category, and Content.';
+                alertEl.classList.remove('d-none');
+                return;
+            }
+
+            // Collect selected tags and names
+            const selectedTagIds = [];
+            const selectedTagNames = [];
+            document.querySelectorAll('.tag-checkbox:checked').forEach(cb => {
+                selectedTagIds.push(parseInt(cb.value, 10));
+                const name = cb.getAttribute('data-tagname');
+                if (name) selectedTagNames.push(name);
+            });
+
+            const btn = document.getElementById('btnSaveArticle');
+            const spinner = document.getElementById('saveArticleSpinner');
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+            alertEl.classList.add('d-none');
+
+            try {
+                let response;
+                const payload = {
+                    newsTitle: title,
+                    headline: headline,
+                    newsContent: content,
+                    newsSource: source || null,
+                    categoryId: parseInt(catIdVal, 10),
+                    newsStatus: status,
+                    imageUrl: imageUrl || null,
+                    tagIds: selectedTagIds
+                };
+
+                if (!id) {
+                    response = await authenticatedFetch(`${window.CORE_API_URL}news`, {
+                        method: 'POST',
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    response = await authenticatedFetch(`${window.CORE_API_URL}news/${id}`, {
+                        method: 'PUT',
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                if (response.ok) {
+                    articleModalInstance.hide();
+                    showToast(!id ? 'News article published successfully!' : 'News article updated successfully!', true);
+
+                    // Train AI Learning Cache with the confirmed tags
+                    if (selectedTagNames.length > 0) {
+                        fetch(`${window.AI_API_URL}ai/learn`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ tags: selectedTagNames })
+                        }).catch(e => console.warn("Learning cache update skipped:", e));
+                    }
+
+                    await loadArticles();
+                } else {
+                    let errMsg = `An error occurred while saving article (HTTP ${response.status}).`;
+                    try {
+                        const err = await response.json();
+                        errMsg = err.message || errMsg;
+                    } catch (_) {
+                        try { errMsg = (await response.text()) || errMsg; } catch (__) {}
+                    }
+                    alertEl.textContent = errMsg;
+                    alertEl.classList.remove('d-none');
+                }
+            } catch (err) {
+                alertEl.textContent = 'Error: ' + err.message;
+                alertEl.classList.remove('d-none');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+            }
+        }
+
+        async function duplicateArticle(id) {
+            if (!confirm('Duplicate this article? A new copy will be created.')) return;
+
+            try {
+                const response = await authenticatedFetch(`${window.CORE_API_URL}news/${id}/duplicate`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    const duplicated = await response.json();
+                    showToast(`Article duplicated successfully as #${duplicated.newsArticleId}!`, true);
+                    await loadArticles();
+                } else {
+                    const err = await response.json();
+                    showToast(err.message || 'Failed to duplicate article.', false);
+                }
+            } catch (err) {
+                showToast('Error: ' + err.message, false);
+            }
+        }
+
+        function openDeleteArticleModal(id, title) {
+            selectedArticleDeleteId = id;
+            document.getElementById('deleteArticleTitle').textContent = `"${title}" (#${id})`;
+            deleteArticleModalInstance.show();
+        }
+
+        async function confirmDeleteArticle() {
+            if (!selectedArticleDeleteId) return;
+
+            const btn = document.getElementById('btnConfirmDeleteArticle');
+            const spinner = document.getElementById('deleteArticleSpinner');
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+
+            try {
+                const response = await authenticatedFetch(`${window.CORE_API_URL}news/${selectedArticleDeleteId}`, {
+                    method: 'DELETE'
+                });
+
+                deleteArticleModalInstance.hide();
+
+                if (response.ok || response.status === 204) {
+                    showToast('Article deleted successfully!', true);
+                    await loadArticles();
+                } else {
+                    const err = await response.json();
+                    showToast(err.message || 'Failed to delete article.', false);
+                }
+            } catch (err) {
+                deleteArticleModalInstance.hide();
+                showToast('Error: ' + err.message, false);
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+                selectedArticleDeleteId = null;
+            }
+        }
+
+        function formatDate(d) {
+            if (!d) return 'N/A';
+            return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+    </script>
+}

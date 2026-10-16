@@ -1,0 +1,337 @@
+[
+  {
+    "newsArticleId": "14",
+    "newsTitle": "C\u1EA3nh b\u00E1o r\u1EE7i ro an ninh m\u1EA1ng",
+    "headline": "C\u00E1c cu\u1ED9c t\u1EA5n c\u00F4ng m\u1EA1ng s\u1EED d\u1EE5ng AI c\u00F3 th\u1EC3 gia t\u0103ng m\u1EA1nh m\u1EBD!",
+    "createdDate": "2026-10-16T08:06:54.247",
+    "newsContent": "Nguy hi\u1EC3m vl",
+    "categoryId": 7,
+    "categoryName": "Artificial Intelligence",
+    "newsStatus": true,
+    "createdById": 3,
+    "createdByName": "Isabella David",
+    "imageUrl": "https://res.cloudinary.com/dbtrra28d/image/upload/v1792112801/funews_articles/pvi7jxtxrlfwnjppvml6.png",
+    "viewCount": 1,
+    "tags": [
+      {
+        "tagId": 10,
+        "tagName": "Cybersecurity",
+        "note": "AI Generated",
+        "articleCount": 0
+      }
+    ]
+  },
+  {
+    "newsArticleId": "13",
+    "newsTitle": "ABCXYZ",
+    "headline": "XXX",
+    "createdDate": "2026-10-13T08:29:52.733",
+    "newsContent": "HWIOEHFGOIHAJNSFVJASGIOAHEFOIHAOIDIOFQHIHJVOPSVWENOVKNSJZ;OJIOHN;IHIAHE;FNOWUJFBNOIAORUHFIOERRHIO;FHUIL;FF;UFHUHU;HEDFIIOIAEJOIEOIWIAOWIJIOJIOJEIODIOEEIEIFIJRUJIEUIJUIJEFIOFGVIO;OGOI;GIOGVIOGBGBIO;GB",
+    "categoryId": 1,
+    "categoryName": "Academic news",
+    "newsStatus": true,
+    "createdById": 3,
+    "createdByName": "Isabella David",
+    "viewCount": 4,
+    "tags": [
+      {
+        "tagId": 7,
+        "tagName": "Alumni ",
+        "note": "Alumni News",
+        "articleCount": 0
+      }
+    ]
+  },
+  {
+    "newsArticleId": "12",
+    "newsTitle": "Quy \u0111\u1ECBnh giao d\u1ECBch t\u00E0i ch\u00EDnh t\u1EA1i Vi\u1EC7t Nam",
+    "headline": "Quy \u0111\u1ECBnh giao d\u1ECBch t\u00E0i ch\u00EDnh t\u1EA1i Vi\u1EC7t Nam",
+    "createdDate": "2026-10-13T08:28:25.59",
+    "newsContent": "Quy \u0111\u1ECBnh giao d\u1ECBch t\u00E0i ch\u00EDnh t\u1EA1i Vi\u1EC7t Nam: T\u1EEB ng\u00E0y 15/11/2026, c\u00E1c giao d\u1ECBch chuy\u1EC3n ti\u1EC1n tr\u00EAn 10 tri\u1EC7u \u0111\u1ED3ng \u0111\u1ED1i v\u1EDBi c\u00E1 nh\u00E2n ho\u1EB7c tr\u00EAn 50 tri\u1EC7u \u0111\u1ED3ng \u0111\u1ED1i v\u1EDBi t\u1ED5 ch\u1EE9c do h\u1EC7 th\u1ED1ng AI t\u1EF1 \u0111\u1ED9ng th\u1EF1c hi\u1EC7n s\u1EBD thu\u1ED9c nh\u00F3m r\u1EE7i ro cao v\u00E0 ph\u1EA3i tu\u00E2n th\u1EE7 c\u00E1c y\u00EAu c\u1EA7u qu\u1EA3n l\u00FD m\u1EDBi.",
+    "categoryId": 9,
+    "categoryName": "Career \u0026 Mentorship",
+    "newsStatus": true,
+    "createdById": 3,
+    "createdByName": "Isabella David",
+    "imageUrl": "https://res.cloudinary.com/dbtrra28d/image/upload/v1791854868/funews_articles/ovou20zokffqkyo8zkwx.png",
+    "viewCount": 2,
+    "tags": [
+      {
+        "tagId": 11,
+        "tagName": "Artificial Intelligence",
+        "note": "AI Generated",
+        "articleCount": 0
+      },
+      {
+        "tagId": 14,
+        "tagName": "Financial Regulation",
+        "note": "AI Generated",
+        "articleCount": 0
+      }
+    ]
+  },
+  {
+    "newsArticleId": "11",
+    "newsTitle": "S\u1EED d\u1EE5ng AI v\u00E0o nghi\u00EAn c\u1EE9u v\u00E0 c\u00E1i k\u1EBFt",
+    "headline": "V\u1EE5 vi\u1EC7c GS Nicholas Polson (\u0110\u1EA1i h\u1ECDc Chicago)",
+    "createdDate": "2026-10-13T07:33:16.393",
+    "newsContent": "\u2022 V\u1EE5 vi\u1EC7c GS Nicholas Polson (\u0110\u1EA1i h\u1ECDc Chicago): N\u1EC1n t\u1EA3ng h\u1ECDc thu\u1EADt SSRN \u0111\u00E3 g\u1EE1 b\u1ECF 257 b\u00E0i nghi\u00EAn c\u1EE9u v\u00E0 \u0111\u00F3ng b\u0103ng t\u00E0i kho\u1EA3n c\u1EE7a Gi\u00E1o s\u01B0 Nicholas Polson do ph\u00E1t hi\u1EC7n ho\u1EA1t \u0111\u1ED9ng g\u1EEDi b\u00E0i b\u1EA5t th\u01B0\u1EDDng v\u00E0o ng\u00E0y 28/09/2026. \u00D4ng th\u1EEBa nh\u1EADn \u0111\u00E3 s\u1EED d\u1EE5ng tr\u00ED tu\u1EC7 nh\u00E2n t\u1EA1o (AI) \u0111\u1EC3 \u0111\u1EA9y nhanh t\u1ED1c \u0111\u1ED9 nghi\u00EAn c\u1EE9u v\u00E0 \u0111\u0103ng h\u01A1n 200 b\u00E0i vi\u1EBFt c\u00F9ng 14 cu\u1ED1n s\u00E1ch m\u1ED7i n\u0103m, g\u00E2y ch\u1EA5n \u0111\u1ED9ng c\u1ED9ng \u0111\u1ED3ng khoa h\u1ECDc.\n\u2022 Gia t\u0103ng \u00E1p l\u1EF1c c\u00F4ng b\u1ED1 v\u00E0 b\u00E0i g\u1EEDi l\u00EAn c\u00E1c t\u1EA1p ch\u00ED l\u1EDBn: S\u1ED1 l\u01B0\u1EE3ng b\u00E0i vi\u1EBFt g\u1EEDi \u0111\u1EBFn c\u00E1c nh\u00E0 xu\u1EA5t b\u1EA3n l\u1EDBn t\u0103ng v\u1ECDt, \u0111\u01A1n c\u1EED nh\u01B0 Elsevier t\u0103ng kho\u1EA3ng 68% trong giai \u0111o\u1EA1n 2021\u20132025, v\u00E0 t\u1EA1p ch\u00ED Organization Science t\u0103ng g\u1EA5p \u0111\u00F4i s\u1ED1 l\u01B0\u1EE3ng b\u00E0i g\u1EEDi t\u1EEB n\u0103m 2022 \u0111\u1EBFn nay, \u0111\u1EB7t ra th\u00E1ch th\u1EE9c l\u1EDBn cho h\u1EC7 th\u1ED1ng ph\u1EA3n bi\u1EC7n ngang h\u00E0ng (peer-review).",
+    "categoryId": 7,
+    "categoryName": "Artificial Intelligence",
+    "newsStatus": true,
+    "createdById": 3,
+    "createdByName": "Isabella David",
+    "imageUrl": "https://res.cloudinary.com/dbtrra28d/image/upload/v1791851573/funews_articles/luqd2ppcot12qepicfvf.png",
+    "viewCount": 1,
+    "tags": [
+      {
+        "tagId": 3,
+        "tagName": "Research",
+        "note": "Research Note",
+        "articleCount": 0
+      },
+      {
+        "tagId": 12,
+        "tagName": "Research Ethics",
+        "note": "AI Generated",
+        "articleCount": 0
+      }
+    ]
+  },
+  {
+    "newsArticleId": "10",
+    "newsTitle": "C\u1EA3nh b\u00E1o r\u1EE7i ro an ninh m\u1EA1ng",
+    "headline": "C\u00E1c cu\u1ED9c t\u1EA5n c\u00F4ng m\u1EA1ng s\u1EED d\u1EE5ng AI c\u00F3 th\u1EC3 gia t\u0103ng m\u1EA1nh m\u1EBD!",
+    "createdDate": "2026-10-13T00:51:58.193",
+    "newsContent": "Ng\u00E0y 11/10/2026, nh\u00E0 \u0111\u1ED3ng s\u00E1ng l\u1EADp Microsoft Bill Gates c\u1EA3nh b\u00E1o c\u00E1c cu\u1ED9c t\u1EA5n c\u00F4ng m\u1EA1ng s\u1EED d\u1EE5ng AI c\u00F3 th\u1EC3 gia t\u0103ng m\u1EA1nh m\u1EBD trong th\u1EDDi gian t\u1EDBi.\n\nTr\u1EA3 l\u1EDDi ph\u1ECFng v\u1EA5n k\u00EAnh ABC News, \u00F4ng Gates cho r\u1EB1ng nguy c\u01A1 AI m\u1EA5t ki\u1EC3m so\u00E1t tr\u00EAn di\u1EC7n r\u1ED9ng c\u00F3 th\u1EC3 c\u00F2n nhi\u1EC1u n\u0103m n\u1EEFa m\u1EDBi tr\u1EDF th\u00E0nh v\u1EA5n \u0111\u1EC1 c\u1EA5p b\u00E1ch. Tr\u01B0\u1EDBc m\u1EAFt, m\u1ED1i \u0111e d\u1ECDa l\u1EDBn h\u01A1n \u0111\u1EBFn t\u1EEB vi\u1EC7c c\u00E1c \u0111\u1ED1i t\u01B0\u1EE3ng x\u1EA5u l\u1EE3i d\u1EE5ng AI \u0111\u1EC3 ti\u1EBFn h\u00E0nh nh\u1EEFng ho\u1EA1t \u0111\u1ED9ng nguy hi\u1EC3m.\n\n\u201CL\u0129nh v\u1EF1c c\u00F3 th\u1EC3 ch\u1EE9ng ki\u1EBFn nh\u1EEFng bi\u1EBFn \u0111\u1ED9ng r\u00F5 r\u1EC7t nh\u1EA5t trong n\u0103m t\u1EDBi l\u00E0 c\u00E1c cu\u1ED9c t\u1EA5n c\u00F4ng m\u1EA1ng\u201D, \u00F4ng Gates nh\u1EADn \u0111\u1ECBnh, \u0111\u1ED3ng th\u1EDDi k\u00EAu g\u1ECDi si\u1EBFt ch\u1EB7t c\u00E1c bi\u1EC7n ph\u00E1p ki\u1EC3m so\u00E1t nh\u1EB1m ng\u0103n ch\u1EB7n vi\u1EC7c s\u1EED d\u1EE5ng AI cho t\u1EA5n c\u00F4ng m\u1EA1ng v\u00E0 kh\u1EE7ng b\u1ED1 sinh h\u1ECDc.\n\nC\u00F9ng ng\u00E0y, Ch\u1EE7 t\u1ECBch ki\u00EAm Gi\u00E1m \u0111\u1ED1c \u0111i\u1EC1u h\u00E0nh Microsoft Satya Nadella k\u00EAu g\u1ECDi x\u00E2y d\u1EF1ng c\u00E1c h\u1EC7 th\u1ED1ng AI ti\u00EAn ti\u1EBFn v\u1EDBi c\u01A1 ch\u1EBF gi\u00E1m s\u00E1t \u0111\u1ED9c l\u1EADp, kh\u1EA3 n\u0103ng c\u00F4 l\u1EADp v\u00E0 \u201Cphanh kh\u1EA9n c\u1EA5p\u201D \u0111\u1EC3 ng\u01B0\u1EDDi c\u00F3 th\u1EA9m quy\u1EC1n c\u00F3 th\u1EC3 t\u1EA1m d\u1EEBng ho\u1EB7c t\u1EAFt m\u00F4 h\u00ECnh ngay trong qu\u00E1 tr\u00ECnh ho\u1EA1t \u0111\u1ED9ng.\n\nTrong b\u00E0i \u0111\u0103ng tr\u00EAn m\u1EA1ng x\u00E3 h\u1ED9i X ng\u00E0y 10/10, \u00F4ng Nadella nh\u1EA5n m\u1EA1nh c\u1EA7n k\u1EBFt h\u1EE3p c\u00E1c m\u00F4 h\u00ECnh AI kh\u00F3 d\u1EF1 \u0111o\u00E1n v\u1EDBi h\u1EC7 th\u1ED1ng ki\u1EC3m so\u00E1t ch\u1EB7t ch\u1EBD, quy tr\u00ECnh v\u1EADn h\u00E0nh \u0111\u00E1ng tin c\u1EADy v\u00E0 c\u00F3 s\u1EF1 gi\u00E1m s\u00E1t c\u1EE7a con ng\u01B0\u1EDDi. \u00D4ng cho r\u1EB1ng c\u00E1c m\u00F4 h\u00ECnh AI ti\u00EAn ti\u1EBFn c\u1EA7n \u0111\u01B0\u1EE3c xem nh\u01B0 nh\u1EEFng r\u1EE7i ro n\u1ED9i b\u1ED9 ti\u1EC1m t\u00E0ng, qua \u0111\u00F3 thi\u1EBFt l\u1EADp c\u01A1 ch\u1EBF ki\u1EC3m tra, truy v\u1EBFt v\u00E0 ng\u0103n ch\u1EB7n s\u1EF1 c\u1ED1 \u0111\u1ED9c l\u1EADp v\u1EDBi ch\u00EDnh m\u00F4 h\u00ECnh.\n\nNh\u1EEFng c\u1EA3nh b\u00E1o tr\u00EAn \u0111\u01B0\u1EE3c \u0111\u01B0a ra trong b\u1ED1i c\u1EA3nh gi\u1EDBi c\u00F4ng ngh\u1EC7 ng\u00E0y c\u00E0ng lo ng\u1EA1i v\u1EC1 kho\u1EA3ng c\u00E1ch gi\u1EEFa t\u1ED1c \u0111\u1ED9 ph\u00E1t tri\u1EC3n AI v\u00E0 n\u0103ng l\u1EF1c b\u1EA3o \u0111\u1EA3m an to\u00E0n. Trong b\u00E0i vi\u1EBFt h\u1ED3i th\u00E1ng 8, t\u1EF7 ph\u00FA c\u00F4ng ngh\u1EC7 Gates c\u1EA3nh b\u00E1o th\u1EBF gi\u1EDBi ch\u01B0a chu\u1EA9n b\u1ECB \u0111\u1EA7y \u0111\u1EE7 cho nh\u1EEFng bi\u1EBFn \u0111\u1ED9ng do AI g\u00E2y ra, \u0111\u1EB7c bi\u1EC7t \u0111\u1ED1i v\u1EDBi th\u1ECB tr\u01B0\u1EDDng lao \u0111\u1ED9ng.\n\nC\u00E1c s\u1EF1 c\u1ED1 li\u00EAn quan \u0111\u1EBFn m\u00F4 h\u00ECnh AI c\u1EE7a Anthropic v\u00E0 OpenAI g\u1EA7n \u0111\u00E2y c\u0169ng l\u00E0m d\u1EA5y l\u00EAn lo ng\u1EA1i v\u1EC1 nguy c\u01A1 h\u1EC7 th\u1ED1ng \u0111\u01B0a ra th\u00F4ng tin sai l\u1EC7ch ho\u1EB7c th\u1EF1c hi\u1EC7n nh\u1EEFng h\u00E0nh \u0111\u1ED9ng ngo\u00E0i t\u1EA7m ki\u1EC3m so\u00E1t. M\u1EDBi \u0111\u00E2y, m\u1ED9t m\u00F4 h\u00ECnh c\u1EE7a Anthropic \u0111\u00E3 g\u1EEDi manh m\u1ED1i gi\u1EA3 cho c\u1EA3nh s\u00E1t v\u00E0 m\u1ED9t m\u00F4 h\u00ECnh c\u1EE7a OpenAI th\u1EF1c hi\u1EC7n t\u1EA5n c\u00F4ng m\u1EA1ng v\u00E0o trang web c\u1EE7a b\u00EAn th\u1EE9 ba.\n\nGi\u1EDBi chuy\u00EAn gia v\u00E0 l\u00E3nh \u0111\u1EA1o c\u00F4ng ngh\u1EC7 v\u00EC v\u1EADy ng\u00E0y c\u00E0ng nh\u1EA5n m\u1EA1nh y\u00EAu c\u1EA7u t\u0103ng c\u01B0\u1EDDng c\u01A1 ch\u1EBF gi\u00E1m s\u00E1t, ki\u1EC3m so\u00E1t v\u00E0 \u1EE9ng ph\u00F3 s\u1EF1 c\u1ED1, thay v\u00EC ch\u1EC9 d\u1EF1a v\u00E0o cam k\u1EBFt an to\u00E0n c\u1EE7a c\u00E1c nh\u00E0 ph\u00E1t tri\u1EC3n.",
+    "categoryId": 7,
+    "categoryName": "Artificial Intelligence",
+    "newsStatus": true,
+    "createdById": 3,
+    "createdByName": "Isabella David",
+    "updatedById": 3,
+    "updatedByName": "Isabella David",
+    "modifiedDate": "2026-10-13T07:30:42.193",
+    "imageUrl": "https://res.cloudinary.com/dbtrra28d/image/upload/v1791851422/funews_articles/mxkamftlz8i4lo4t9jyv.png",
+    "viewCount": 0,
+    "tags": [
+      {
+        "tagId": 1,
+        "tagName": "Education",
+        "note": "Education Note",
+        "articleCount": 0
+      },
+      {
+        "tagId": 2,
+        "tagName": "Technology",
+        "note": "Technology Note",
+        "articleCount": 0
+      },
+      {
+        "tagId": 3,
+        "tagName": "Research",
+        "note": "Research Note",
+        "articleCount": 0
+      },
+      {
+        "tagId": 4,
+        "tagName": "Innovation",
+        "note": "Innovation Note",
+        "articleCount": 0
+      },
+      {
+        "tagId": 10,
+        "tagName": "Cybersecurity",
+        "note": "AI Generated",
+        "articleCount": 0
+      },
+      {
+        "tagId": 11,
+        "tagName": "Artificial Intelligence",
+        "note": "AI Generated",
+        "articleCount": 0
+      }
+    ]
+  },
+  {
+    "newsArticleId": "9",
+    "newsTitle": "aguiwfguqe",
+    "headline": "jagwfukg",
+    "createdDate": "2026-09-25T12:02:38.797",
+    "newsContent": "\u00C0wwfwfa",
+    "newsSource": "FPT",
+    "categoryId": 7,
+    "categoryName": "Artificial Intelligence",
+    "newsStatus": true,
+    "createdById": 6,
+    "createdByName": "Monome",
+    "viewCount": 0,
+    "tags": [
+      {
+        "tagId": 3,
+        "tagName": "Research",
+        "note": "Research Note",
+        "articleCount": 0
+      },
+      {
+        "tagId": 7,
+        "tagName": "Alumni ",
+        "note": "Alumni News",
+        "articleCount": 0
+      },
+      {
+        "tagId": 8,
+        "tagName": "Events",
+        "note": "University Events",
+        "articleCount": 0
+      }
+    ]
+  },
+  {
+    "newsArticleId": "8",
+    "newsTitle": "Banh mi dan to has returned",
+    "headline": "Banh mi dan to has returned, now we can \u0022chan\u0022 Banhmidanto",
+    "createdDate": "2026-09-25T09:25:51.227",
+    "newsContent": "\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u281F\u289B\u28F9\u28FF\u28FF\u28FF\u289B\u289B\u28E3\u28FD\u283B\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28CF\u28C9\u28E4\u28EC\u2864\u2822\u28F0\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28DF\u287F\u28EF\u28FE\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u2800\u28FE\u28FF\u28FF\u28FF\u28FF\u28FF\u2847\u28FF\u28FF\u28FF\u28FF\u2883\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u2883\u28FE\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u2846\u28BB\u28FF\u28FF\u28FF\u28FF\u28FF\u2800\u281F\u28EB\u280D\u28B1\u28FE\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u287F\u28F8\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28C8\u28D9\u28C1\u28F4\u28FF\u28FE\u28F8\u28FF\u28FF\u28FF\u28F7\u284C\u28FF\u28FF\u28FF\u28DF\u28D7\u28FF\u28FF\u28F1\u28FE\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28F3\u28FB\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FD\u28FF\u28FF\u28FF\u28FF\u281B\u2809\u2801\u2800\u2808\u2819\u28BF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u2807\u2800\u2800\u2800\u2800\u2800\u2800\u2808\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28DF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u28B8\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28EF\u28ED\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28EF\u2800\u2800\u2800\u2800\u2800\u2800\u2830\u28A0\u28FE\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u287F\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28C7\u2800\u2800\u2800\u2800\u2800\u2800\u28FC\u28FB\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28E7\u2840\u2800\u2800\u2880\u28F0\u28CF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u287F\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u2801\u2800\u2800\u2800\u2800\u2800\u2831\u28FF\u28FF\u28FF\u28FF\u28BE\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FD\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u283F\u280B\u2801\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2809\u2813\u283F\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u287F\u281B\u2809\u2800\u2800\u2800\u2880\u2820\u28E4\u28F0\u28A0\u28C0\u2844\u28A0\u2884\u2880\u2800\u2800\u2800\u2808\u2819\u281B\u28BF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u287F\u280B\u2801\u2800\u2800\u2800\u2800\u28AB\u282B\u2812\u2809\u2808\u2800\u2808\u2801\u2818\u281A\u282F\u2817\u2800\u2800\u2800\u2800\u2800\u2808\u28BB\u28FF\u28FF\u28FD\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u286F\u280B\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u28F4\u28F6\u28F6\u28F6\u28E4\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u281B\u28BF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u281F\u2801\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2808\u28FB\u2847\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2839\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u287F\u28B7\u2884\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2880\u28FF\u2803\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2818\u28BF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FB\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u287F\u283F\u2837\u283F\u28CB\u28F4\u2844\u2800\u28E0\u28FE\u28C4\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u28FC\u285F\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2880\u28F6\u28C4\u2800\u2800\u2800\u2800\u2800\u2808\u28BF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u287F\u2801\u2800\u2800\u2800\u2818\u2891\u28F4\u28FF\u28FF\u28FF\u28FF\u2844\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u28B8\u287F\u2801\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u28FE\u28FF\u28FF\u28E6\u2840\u2800\u2800\u2800\u2800\u28B8\u28F3\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u2847\u2800\u2800\u2800\u2800\u2830\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28F7\u2800\u2800\u2800\u2800\u2800\u2800\u28A0\u28FF\u2803\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u28B0\u28FF\u28FF\u28FF\u28FF\u285F\u2800\u2800\u2800\u2800\u28B8\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u2847\u2800\u2800\u2800\u2800\u2800\u28B9\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u2800\u2800\u2800\u2800\u2800\u2800\u2838\u2809\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u28F8\u28FF\u28FF\u28FF\u28FF\u2801\u2800\u2800\u2800\u2880\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28CF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28C7\u2840\u2800\u2800\u2800\u2800\u2800\u283B\u28FF\u28FF\u28FF\u28FF\u28FF\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u28FF\u28FF\u28FF\u28FF\u2803\u2800\u2800\u2800\u2880\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28F7\u28C4\u2800\u2800\u2800\u2800\u2819\u28FF\u28FF\u28FF\u28FF\u28C0\u2844\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u28FF\u28FF\u28FF\u2803\u2800\u2800\u2800\u28A0\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FD\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28E7\u2840\u2800\u2800\u2800\u2888\u28FF\u28FB\u28FF\u2803\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2819\u2836\u28FC\u285B\u281B\u2801\u2800\u2800\u2800\u28F0\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u287F\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28E6\u28C4\u28E0\u28FE\u28FF\u28FF\u285F\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2808\u28B2\u2800\u2800\u2800\u28A0\u28FE\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u2877\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2887\u28E0\u28FE\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u2803\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u28B0\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28EF\u28FF\u28FF\n\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u2800\u28BF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF\u28FF",
+    "categoryId": 8,
+    "categoryName": "Student Clubs \u0026 Sports",
+    "newsStatus": true,
+    "createdById": 6,
+    "createdByName": "Monome",
+    "updatedById": 6,
+    "updatedByName": "Monome",
+    "modifiedDate": "2026-09-25T09:26:48.073",
+    "viewCount": 1,
+    "tags": [
+      {
+        "tagId": 8,
+        "tagName": "Events",
+        "note": "University Events",
+        "articleCount": 0
+      }
+    ]
+  },
+  {
+    "newsArticleId": "7",
+    "newsTitle": "Monome is Nguyen Viet Hoang!",
+    "headline": "Monome now is not secret",
+    "createdDate": "2026-09-25T07:38:16.627",
+    "newsContent": "Monome is Nguyen Viet Hoang HE191065\n08*****661\nMB Bank:\nT\u00E0i kho\u1EA3n: S\u0110T\nM\u1EADt kh\u1EA9u: Trustmebro123@Aa",
+    "newsSource": "Trust me bro",
+    "categoryId": 2,
+    "categoryName": "Student Affairs",
+    "newsStatus": true,
+    "createdById": 6,
+    "createdByName": "Monome",
+    "updatedById": 6,
+    "updatedByName": "Monome",
+    "modifiedDate": "2026-09-25T09:22:49.18",
+    "viewCount": 2,
+    "tags": [
+      {
+        "tagId": 3,
+        "tagName": "Research",
+        "note": "Research Note",
+        "articleCount": 0
+      },
+      {
+        "tagId": 5,
+        "tagName": "Campus Life",
+        "note": "Campus Life Note",
+        "articleCount": 0
+      },
+      {
+        "tagId": 8,
+        "tagName": "Events",
+        "note": "University Events",
+        "articleCount": 0
+      },
+      {
+        "tagId": 9,
+        "tagName": "Resources",
+        "note": "Campus Resources",
+        "articleCount": 0
+      }
+    ]
+  },
+  {
+    "newsArticleId": "6",
+    "newsTitle": "[Copy] University FU Celebrates Success of Alumni in Various Fields",
+    "headline": "University FU Celebrates Success of Alumni in Various Fields",
+    "createdDate": "2026-09-18T12:09:05.527",
+    "newsContent": "University FU recently commemorated the achievements of its esteemed alumni who have excelled in a multitude of fields, showcasing the impact of the institution\u0027s education on their professional journeys.\r\n\r\nDiverse Success Stories: From successful entrepreneurs to renowned artists, University X\u0027s alumni have made significant strides in various industries, reflecting the versatility of the education provided.\r\n\r\nNetworking Opportunities: The university\u0027s strong alumni network played a crucial role in fostering connections and collaborations among graduates, contributing to their success.\r\n\r\nAlumni Contributions: Many alumni have also given back to the university through mentorship programs, scholarships, and guest lectures, enriching the current student experience.",
+    "newsSource": "N/A",
+    "categoryId": 4,
+    "categoryName": "Alumni News",
+    "newsStatus": false,
+    "createdById": 3,
+    "createdByName": "Isabella David",
+    "updatedById": 3,
+    "updatedByName": "Isabella David",
+    "viewCount": 0,
+    "tags": [
+      {
+        "tagId": 5,
+        "tagName": "Campus Life",
+        "note": "Campus Life Note",
+        "articleCount": 0
+      },
+      {
+        "tagId": 7,
+        "tagName": "Alumni ",
+        "note": "Alumni News",
+        "articleCount": 0
+      },
+      {
+        "tagId": 9,
+        "tagName": "Resources",
+        "note": "Campus Resources",
+        "articleCount": 0
+      }
+    ]
+  },
+  {
+    "newsArticleId": "1",
+    "newsTitle": "University FU Celebrates Success of Alumni in Various Fields",
+    "headline": "University FU Celebrates Success of Alumni in Various Fields",
+    "createdDate": "2024-05-05T00:00:00",
+    "newsContent": "University FU recently commemorated the achievements of its esteemed alumni who have excelled in a multitude of fields, showcasing the impact of the institution\u0027s education on their professional journeys.\n\nDiverse Success Stories: From successful entrepreneurs to renowned artists, University X\u0027s alumni have made significant strides in various industries, reflecting the versatility of the education provided.\n\nNetworking Opportunities: The university\u0027s strong alumni network played a crucial role in fostering connections and collaborations among graduates, contributing to their success.\n\nAlumni Contributions: Many alumni have also given back to the university through mentorship programs, scholarships, and guest lectures, enriching the current student experience.",
+    "newsSource": "N/A",
+    "categoryId": 4,
+    "categoryName": "Alumni News",
+    "newsStatus": true,
+    "createdById": 3,
+    "createdByName": "Isabella David",
+    "updatedById": 3,
+    "updatedByName": "Isabella David",
+    "modifiedDate": "2026-10-13T07:55:11.227",
+    "imageUrl": "https://res.cloudinary.com/dbtrra28d/image/upload/v1791852898/funews_articles/ayyuxcy5hc2usk3yf7rc.jpg",
+    "viewCount": 129,
+    "tags": [
+      {
+        "tagId": 5,
+        "tagName": "Campus Life",
+        "note": "Campus Life Note",
+        "articleCount": 0
+      },
+      {
+        "tagId": 7,
+        "tagName": "Alumni ",
+        "note": "Alumni News",
+        "articleCount": 0
+      },
+      {
+        "tagId": 9,
+        "tagName": "Resources",
+        "note": "Campus Resources",
+        "articleCount": 0
+      },
+      {
+        "tagId": 13,
+        "tagName": "Networking",
+        "note": "AI Generated",
+        "articleCount": 0
+      }
+    ]
+  }
+]

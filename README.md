@@ -1,154 +1,191 @@
-# FUNewsManagementSystem - Assignment 01
-**Môn học**: PRN232 - Advanced Cross-Platform Web Development with .NET  
-**Sinh viên thực hiện**: HoangNV  
-**Mã lớp**: SE1930  
-**Mã bài thi**: A01 (Assignment 01)  
+# FUNewsManagementSystem v2 - Distributed & Intelligent News Architecture
+
+**Course**: PRN232 - Advanced Cross-Platform Web Development with .NET  
+**Assignment**: Assignment 02 - Distributed & Intelligent News System  
+**Framework**: .NET 8.0 (LTS)  
+**Database**: Microsoft SQL Server (`FUNewsManagement`)  
 
 ---
 
-## 1. Giới Thiệu Dự Án
+## 1. System Architecture & Topology
 
-**FUNewsManagementSystem** là hệ thống tin tức và truyền thông nội bộ trường đại học được xây dựng theo kiến trúc phân tán hiện đại, tuân thủ nghiêm ngặt **Kiến trúc 3 lớp (3-Layer Architecture)**:
-- **Backend API (`HoangNV_SE1930_A01_BE`)**: ASP.NET Core Web API 8.0, Entity Framework Core 8, Microsoft.AspNetCore.OData 9.5.0, JWT Bearer Authentication, ClosedXML Excel Export Engine, SQL Server.
-  - Sử dụng mẫu thiết kế **Repository Pattern** và **Thread-Safe Singleton DAO** (mỗi method tự khởi tạo và giải phóng `FunewsManagementContext` độc lập, triệt tiêu 100% nguy cơ lỗi concurrency khi nhiều request đồng thời).
-- **Frontend Web Application (`HoangNV_SE1930_A01_FE`)**: ASP.NET Core Razor Pages 8.0, Bootstrap 5, AJAX/Fetch API đính kèm JWT Bearer Token tự động, Cookie Authentication & Session State.
-- **Cơ sở dữ liệu**: SQL Server (`FUNewsManagement`), hỗ trợ đầy đủ khóa chính, khóa ngoại, quan hệ n-n junction table `NewsTag`, danh mục phân cấp cha - con.
+The system is decoupled into **4 independent .NET 8 solutions** communicating exclusively via RESTful HTTP APIs and SignalR WebSockets:
 
----
+```mermaid
+graph TD
+    FE["FUNewsManagement_FE.sln<br/>(Razor Pages - Port 5237)"]
+    CORE["FUNewsManagement_CoreAPI.sln<br/>(Port 5132)"]
+    ANALYTICS["FUNewsManagement_AnalyticsAPI.sln<br/>(Port 5133)"]
+    AI["FUNewsManagement_AIAPI.sln<br/>(Port 5134)"]
+    DB[("SQL Server: FUNewsManagement")]
 
-## 2. Hướng Dẫn Cấu Hình & Cài Đặt
+    FE -- "CRUD, Auth, Image, SignalR" --> CORE
+    FE -- "Dashboard, Trending, Export" --> ANALYTICS
+    FE -- "AI Tag Suggestions, Learning" --> AI
 
-### 2.1. Yêu Cầu Môi Trường
-- .NET SDK 8.0 trở lên.
-- Microsoft Visual Studio 2022 (hoặc VS Code với C# Dev Kit).
-- Microsoft SQL Server 2016 trở lên (LocalDB, SQLEXPRESS, hoặc Standard).
-
-### 2.2. Khởi Tạo Cơ Sở Dữ Liệu
-Tập lệnh SQL đầy đủ lược đồ và dữ liệu mẫu mang ý nghĩa thực tế đã được chuẩn bị tại file `FUNewsManagement_Schema_And_Data.sql`.
-
-Chạy lệnh sau trên PowerShell:
-```powershell
-Invoke-Sqlcmd -ServerInstance 'MONOME\SQLEXPRESS' -InputFile 'FUNewsManagement_Schema_And_Data.sql'
+    CORE -- "EF Core Read/Write + AuditLog" --> DB
+    ANALYTICS -- "EF Core Read-Only AsNoTracking" --> DB
 ```
-*(Hoặc mở SQL Server Management Studio (SSMS), kết nối tới SQL Server của bạn và thực thi file `FUNewsManagement_Schema_And_Data.sql`).*
 
-Chuỗi kết nối mặc định trong `HoangNV_SE1930_A01_BE/HoangNV_SE1930_A01_BE/appsettings.json`:
-```json
-"ConnectionStrings": {
-  "MyCnn": "Data Source=MONOME\\SQLEXPRESS;Initial Catalog=FUNewsManagement;Trusted_Connection=SSPI;Encrypt=false;TrustServerCertificate=True"
-}
-```
-*(Nếu sử dụng máy tính khác, chỉ cần thay đổi `Data Source` cho phù hợp).*
-
----
-
-## 3. Hướng Dẫn Khởi Chạy Cả 2 Solution Cùng Lúc
-
-### Cách 1: Khởi chạy bằng Terminal / PowerShell (Nhanh & Ổn định nhất)
-Mở 2 cửa sổ terminal tại thư mục gốc dự án:
-
-**Terminal 1 - Khởi chạy Backend Web API:**
-```powershell
-cd HoangNV_SE1930_A01_BE\HoangNV_SE1930_A01_BE
-dotnet run --launch-profile http
-```
-- **API Base URL**: `http://localhost:5132`
-- **Swagger Documentation**: `http://localhost:5132/swagger`
-
-**Terminal 2 - Khởi chạy Frontend Web App:**
-```powershell
-cd HoangNV_SE1930_A01_FE\HoangNV_SE1930_A01_FE
-dotnet run --launch-profile http
-```
-- **Web App URL**: `http://localhost:5237`
-
-### Cách 2: Khởi chạy bằng Visual Studio
-1. Mở cửa sổ Visual Studio thứ nhất: Chọn file `HoangNV_SE1930_A01_BE/HoangNV_SE1930_A01_BE.sln` -> Nhấn **Ctrl+F5** để chạy API.
-2. Mở cửa sổ Visual Studio thứ hai: Chọn file `HoangNV_SE1930_A01_FE/HoangNV_SE1930_A01_FE.sln` -> Nhấn **Ctrl+F5** để chạy Web App.
-
----
-
-## 4. Danh Sách Tài Khoản Thử Nghiệm Theo Từng Vai Trò (Roles)
-
-| Vai Trò (Role) | Email Đăng Nhập | Mật Khẩu | Quyền Hạn & Trang Điều Hướng Mặc Định |
+| # | Solution Name | Port | Primary Responsibilities |
 | :--- | :--- | :--- | :--- |
-| **Admin** | `admin@FUNewsManagementSystem.org` | `@@abc123@@` | - Đọc từ `appsettings.json`<br>- Toàn quyền quản lý tài khoản (`/Admin/Accounts`)<br>- Xem thống kê KPI, biểu đồ gom nhóm & xuất file Excel (`/Admin/Reports`) |
-| **Staff** (`Role = 1`) | `IsabellaDavid@FUNewsManagement.org` | `@1` | - Quản lý bài viết & nhân bản tin tức (`/Staff/Articles`)<br>- Quản lý danh mục & danh mục con (`/Staff/Categories`)<br>- Quản lý thẻ tag (`/Staff/Tags`)<br>- Quản lý thông tin & đổi mật khẩu cá nhân (`/Staff/Profile`) |
-| **Lecturer** (`Role = 2`) | `EmmaWilliam@FUNewsManagement.org` | `@1` | - Tra cứu và đọc tin tức (`/Lecturer/Articles`)<br>- Chế độ **Read & Search Only**, ẩn toàn bộ nút Thêm/Sửa/Xóa/Nhân bản |
-| **Guest / Public** | *(Không cần đăng nhập)* | *(Trống)* | - Trang chủ tin tức công khai (`/`)<br>- Lọc theo danh mục Active, tìm kiếm từ khóa<br>- Xem chi tiết bài viết & **Top 3 bài viết liên quan** |
-
-*(Các tài khoản thử nghiệm khác trong database: `OliviaJames@FUNewsManagement.org` / `@1` (Lecturer), `MichaelCharlotte@FUNewsManagement.org` / `@1` (Staff), `SteveParis@FUNewsManagement.org` / `@1` (Staff)).*
+| **1** | `FUNewsManagement_CoreAPI.sln` | `5132` | Identity (JWT + Refresh Token rotation & reuse detection), CRUD (Account, Category, Tag, NewsArticle), Image Upload (2MB limit), EF Core ChangeTracker Audit Logging, SignalR Notification Hub (`/hubs/notifications`). |
+| **2** | `FUNewsManagement_AnalyticsAPI.sln` | `5133` | Read-only analytics using `AsNoTracking()`. Endpoints: `/api/analytics/dashboard`, `/api/analytics/trending`, `/api/recommend/{id}`, and ClosedXML streaming `/api/analytics/export`. |
+| **3** | `FUNewsManagement_AIAPI.sln` | `5134` | OpenAI Chat Completions tag extraction (`gpt-4o-mini`) with confidence scores (0.0 to 1.0), in-memory `LearningCache` with boost scores, and learning endpoint `/api/ai/learn`. |
+| **4** | `FUNewsManagement_FE.sln` | `5237` | Razor Pages Web UI with **zero direct DB access**. Configured with `HttpClientFactory` named clients, Polly Resilience (Retry + Fallback), thread-safe token refresh `DelegatingHandler` (`SemaphoreSlim`), 6-hour `PeriodicTimer` Background Worker, Chart.js visualizations, SignalR real-time Toast, and Sticky Offline Mode banner. |
 
 ---
 
-## 5. Tổng Quan API Endpoints & Mẫu Truy Vấn OData
+## 1.1. Environment Configuration & Secrets Setup
 
-### 5.1. Bảng Tổng Hợp Endpoint API
-| Phương thức | Endpoint | Quyền hạn | Mô tả nghiệp vụ |
+For security, all sensitive credentials (API keys, JWT secret keys, Cloudinary tokens, and SQL Server connection strings) in `appsettings.json` are excluded from Git tracking via `.gitignore`. 
+
+Each service contains an `appsettings.sample.json` template. Copy each sample file to `appsettings.json` and provide your specific credentials:
+
+### 1. Core API (`FUNewsManagement_CoreAPI/FUNewsManagement_CoreAPI/appsettings.json`)
+Copy from [appsettings.sample.json](file:///d:/Dev_Web/Assigment_1/FUNewsManagement_CoreAPI/FUNewsManagement_CoreAPI/appsettings.sample.json):
+- `ConnectionStrings:MyCnn`: Your SQL Server connection string.
+- `AdminAccount:Password`: Initial administrator password.
+- `Jwt:Key`: Secret key for JWT signing (at least 32 characters).
+- `Cloudinary`: Your Cloudinary `CloudName`, `ApiKey`, and `ApiSecret`.
+
+### 2. Analytics API (`FUNewsManagement_AnalyticsAPI/FUNewsManagement_AnalyticsAPI/appsettings.json`)
+Copy from [appsettings.sample.json](file:///d:/Dev_Web/Assigment_1/FUNewsManagement_AnalyticsAPI/FUNewsManagement_AnalyticsAPI/appsettings.sample.json):
+- `ConnectionStrings:MyCnn`: Your SQL Server connection string.
+
+### 3. AI API (`FUNewsManagement_AIAPI/FUNewsManagement_AIAPI/appsettings.json`)
+Copy from [appsettings.sample.json](file:///d:/Dev_Web/Assigment_1/FUNewsManagement_AIAPI/FUNewsManagement_AIAPI/appsettings.sample.json):
+- `GoogleAI:ApiKey`: Google AI Studio Gemini API key.
+- `OpenAI:ApiKey`: (Optional) OpenAI API key for Tier-2 fallback.
+
+### 4. Frontend (`FUNewsManagement_FE/FUNewsManagement_FE/appsettings.json`)
+Copy from [appsettings.sample.json](file:///d:/Dev_Web/Assigment_1/FUNewsManagement_FE/FUNewsManagement_FE/appsettings.sample.json):
+- Pre-configured to connect to Core API (`5132`), Analytics API (`5133`), AI API (`5134`), and SignalR Hub.
+
+---
+
+## 2. Database Setup & Hard Business Rules
+
+### 2.1. SQL Database Setup
+The database schema and seed data are located in `FUNewsManagement.sql`:
+- **New Tables**:
+  - `AuditLog`: `Id`, `UserId`, `Action`, `EntityName`, `Timestamp`, `BeforeJson`, `AfterJson`.
+  - `RefreshToken`: `Id`, `Token`, `JwtId`, `IsUsed`, `IsRevoked`, `ExpiryDate`, `AccountId`.
+- **New Columns on `NewsArticle`**:
+  - `ImageUrl`: `NVARCHAR(500) NULL`
+  - `ViewCount`: `INT NOT NULL DEFAULT 0`
+
+Execute via SQL Server Management Studio (SSMS) or PowerShell:
+```powershell
+sqlcmd -S "MONOME\SQLEXPRESS" -i "FUNewsManagement.sql"
+```
+
+### 2.2. Enforced Business Constraints (HTTP 400 Bad Request)
+- **Category Deletion**: Rejected if any `NewsArticle` is linked to the Category.
+- **Account Deletion**: Rejected if the Account has authored any `NewsArticle` (`CreatedById`). The system Administrator (`AccountId = 0`) cannot be deleted.
+- **Account Password Change**: Validates the old password against stored hash before updating.
+- **Tag Creation**: Case-insensitive uniqueness check rejects duplicate tag names.
+- **Image Upload**: Validates MIME types/extensions (`.jpg`, `.jpeg`, `.png`, `.webp`) and enforces a **2MB maximum file size limit**.
+
+---
+
+## 3. How to Launch the Solutions
+
+### Option A: One-Click Launch Script (Recommended)
+
+Run the included PowerShell script to launch all 4 services in separate terminal windows automatically:
+```powershell
+.\run-all.ps1
+```
+To cleanly stop all running services:
+```powershell
+.\stop-all.ps1
+```
+
+### Option B: Run Services Manually (Strict Order)
+
+Open 4 separate terminal windows and run each service in the following exact order:
+
+**Terminal 1 (First) - Core API (Port 5132):**
+```powershell
+cd FUNewsManagement_CoreAPI\FUNewsManagement_CoreAPI
+dotnet run --urls "http://localhost:5132"
+```
+
+**Terminal 2 - Analytics API (Port 5133):**
+```powershell
+cd FUNewsManagement_AnalyticsAPI\FUNewsManagement_AnalyticsAPI
+dotnet run --urls "http://localhost:5133"
+```
+
+**Terminal 3 - AI API (Port 5134):**
+```powershell
+cd FUNewsManagement_AIAPI\FUNewsManagement_AIAPI
+dotnet run --urls "http://localhost:5134"
+```
+
+**Terminal 4 - Frontend Web App (Port 5237):**
+```powershell
+cd FUNewsManagement_FE\FUNewsManagement_FE
+dotnet run --urls "http://localhost:5237"
+```
+
+### Option C: Visual Studio 2022
+Open any of the 4 individual solution files:
+- `FUNewsManagement_CoreAPI.sln`
+- `FUNewsManagement_AnalyticsAPI.sln`
+- `FUNewsManagement_AIAPI.sln`
+- `FUNewsManagement_FE.sln`
+
+---
+
+## 4. Test Accounts & Role Access Matrix
+
+| Role | Email | Password | Allowed Navigation & Permissions |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/login` | Anonymous | Đăng nhập lấy JWT Bearer token và thông tin người dùng |
-| `GET` | `/api/auth/me` | Authenticated | Lấy thông tin tài khoản hiện tại |
-| `GET` | `/api/news` hoặc `/api/newsarticle` | Anonymous (OData) | Lấy danh sách tin tức (hỗ trợ OData `$filter`, `$orderby`, `$top`, `$skip`) |
-| `GET` | `/api/news/{id}` | Anonymous | Xem chi tiết bài viết |
-| `GET` | `/api/news/{id}/related` | Anonymous | Thuật toán gợi ý **Top 3 bài viết liên quan** |
-| `POST` | `/api/news` | Staff | Tạo bài viết mới (tự động gán CreatedByID, CreatedDate) |
-| `PUT` | `/api/news/{id}` | Staff | Cập nhật bài viết (tự động gán UpdatedByID, ModifiedDate) |
-| `DELETE` | `/api/news/{id}` | Staff | Xóa bài viết (tự động xóa cascade liên kết trong `NewsTag`) |
-| `POST` | `/api/news/{id}/duplicate` | Staff | Nhân bản bài viết thành bản sao `[Copy] ...` |
-| `GET` | `/api/category` hoặc `/api/categories` | Anonymous (OData) | Lấy danh sách danh mục (kèm số lượng bài viết) |
-| `POST` | `/api/category` | Staff | Tạo danh mục (chặn trùng tên con cùng cha) |
-| `PUT` | `/api/category/{id}` | Staff | Sửa danh mục (**chặn đổi ParentCategoryID nếu đã có bài viết**) |
-| `DELETE` | `/api/category/{id}` | Staff | Xóa danh mục (**chặn xóa nếu danh mục đang chứa bài viết**) |
-| `GET` | `/api/tag` hoặc `/api/tags` | Anonymous (OData) | Lấy danh sách thẻ tag |
-| `POST` | `/api/tag` | Staff | Tạo tag mới (chặn trùng `TagName`) |
-| `PUT` | `/api/tag/{id}` | Staff | Sửa tag |
-| `DELETE` | `/api/tag/{id}` | Staff | Xóa tag (**chặn xóa nếu tag đang gắn với bài viết**) |
-| `GET` | `/api/account` hoặc `/api/accounts` | Admin (OData) | Lấy danh sách tài khoản hệ thống |
-| `POST` | `/api/account` | Admin | Tạo tài khoản mới (chặn trùng email) |
-| `PUT` | `/api/account/{id}` | Admin | Cập nhật tài khoản (chặn trùng email) |
-| `DELETE` | `/api/account/{id}` | Admin | Xóa tài khoản (**chặn xóa nếu tài khoản đã tạo bài viết**) |
-| `PUT` / `PATCH` | `/api/account/{id}/password` | Admin, Staff | Đổi mật khẩu (**bắt buộc xác thực đúng mật khẩu hiện tại**) |
-| `GET` | `/api/report/statistics` | Admin | Báo cáo thống kê số lượng theo ngày, gom nhóm chuyên mục & tác giả |
-| `GET` | `/api/report/export-excel` | Admin | Xuất báo cáo thống kê ra file Excel `.xlsx` chuyên nghiệp |
+| **Admin** | `admin@FUNewsManagementSystem.org` | `@@abc123@@` | - Account Management (`/Admin/Accounts`)<br/>- Executive Analytics & Excel Export (`/Admin/Reports`)<br/>- Audit Logs Viewer (`/Admin/AuditLogs`) |
+| **Staff** | `IsabellaDavid@FUNewsManagement.org` | `@1` | - News Management with AI Tags & Image Upload (`/Staff/Articles`)<br/>- Category Hierarchy Management (`/Staff/Categories`)<br/>- Tag Management (`/Staff/Tags`)<br/>- Profile & Password Change (`/Staff/Profile`) |
+| **Lecturer** | `EmmaWilliam@FUNewsManagement.org` | `@1` | - Read-Only News Explorer (`/Lecturer/Articles`) |
+| **Guest** | *(Anonymous)* | *(None)* | - Public News Portal (`/`)<br/>- Top 3 Recommended Articles Modal (`/api/recommend/{id}`) |
 
-### 5.2. Mẫu Cú Pháp Truy Vấn OData
-- Lọc bài viết đang Active:  
-  `GET /api/news?$filter=newsStatus eq true`
-- Sắp xếp ngày tạo giảm dần và phân trang:  
-  `GET /api/news?$orderby=createdDate desc&$skip=0&$top=5`
-- Tìm kiếm từ khóa theo tiêu đề hoặc headline:  
-  `GET /api/news?$filter=contains(newsTitle, 'Alumni') or contains(headline, 'Alumni')`
-- Lọc bài viết theo danh mục cha hoặc con:  
-  `GET /api/news?$filter=categoryId eq 1 and newsStatus eq true`
+*(Other test staff accounts: `MichaelCharlotte@FUNewsManagement.org` / `@1`, `SteveParis@FUNewsManagement.org` / `@1`).*
 
 ---
 
-## 6. Các Ràng Buộc Nghiệp Vụ & Toàn Vẹn Dữ Liệu Đã Được Kiểm Thử
+## 5. API Endpoints Reference
 
-Hệ thống đã trải qua bộ kiểm thử tự động **32/32 Test Cases đạt chuẩn 100%**:
-1. **Xác thực mật khẩu cũ khi đổi Pass (Mục 4.2)**: Nhập sai mật khẩu hiện tại sẽ bị từ chối với mã **HTTP 400 Bad Request** và thông báo *"The current password is not correct."*
-2. **Chặn sửa ParentCategoryID khi Category đã có bài viết (Mục 4.3)**: Khi cố gắng đổi danh mục cha của danh mục đang gắn với bài viết, hệ thống chặn lại với **HTTP 400 Bad Request** và thông báo *"Cannot change the parent category because category '...' is already associated with existing news articles."*
-3. **Chặn xóa Category vướng bài viết (Mục 4.3)**: Category đang có bài viết không thể bị xóa -> **HTTP 400 Bad Request**.
-4. **Chặn xóa Account đã tạo bài viết (Mục 4.2)**: Account đã tạo bài viết không thể bị xóa -> **HTTP 400 Bad Request**.
-5. **Chặn xóa Tag gắn với bài viết (Mục 4.5)**: Tag đang được dùng trong `NewsTag` không thể bị xóa -> **HTTP 400 Bad Request**.
-6. **Chặn trùng lặp tên (Mục 5.4)**:
-   - Chặn trùng `AccountEmail` khi tạo hoặc cập nhật tài khoản.
-   - Chặn trùng `TagName` khi tạo thẻ tag.
-   - Chặn trùng tên danh mục con trong cùng một danh mục cha (`ParentCategoryID`). Cùng tên nhưng khác cha thì được chấp nhận.
-7. **Phân quyền Lecturer (Mục 4.1)**: Chỉ có quyền đọc và tra cứu tin tức, toàn bộ nút tạo/sửa/xóa bị ẩn và API chặn với mã **HTTP 403 Forbidden**.
-8. **Thuật toán gợi ý Top 3 liên quan (Mục 4.9)**: Tự động tìm kiếm các bài viết Active cùng chuyên mục hoặc chung tag, trả về tối đa 3 bài viết có độ tương đồng cao nhất.
-9. **Xuất báo cáo Excel (Mục 4.7, 5.8)**: Sử dụng **ClosedXML** định dạng tiêu đề, KPI card, bảng gom nhóm chuyên mục, bảng gom nhóm tác giả, và bảng chi tiết bài viết ra file `.xlsx`.
+### 5.1. Core API (`http://localhost:5132`)
+- `POST /api/auth/login`: Authenticate and receive JWT (15-min expiry) + Refresh Token (7-day expiry).
+- `POST /api/auth/refresh`: Rotate refresh token. Includes **Token Reuse Detection** (if a used/revoked token is replayed, all active sessions for that account are revoked).
+- `GET /api/news`: List news articles (supports OData query options).
+- `POST /api/news`: Create news article and broadcast `ReceiveNewArticleNotification` via SignalR.
+- `POST /api/news/upload-image`: Upload article thumbnail image (2MB limit, validated format).
+- `GET /api/auditlog`: Admin endpoint for querying EF Core audit log entries with pagination and user/entity filters.
+- `GET /hubs/notifications`: SignalR WebSocket hub endpoint (extracts JWT from query parameter `access_token`).
+
+### 5.2. Analytics API (`http://localhost:5133`)
+- `GET /api/analytics/dashboard`: Aggregate total articles by Category, Status (Active/Inactive), and Author. Supports `startDate`, `endDate`, `categoryId`, and `authorId` query filters.
+- `GET /api/analytics/trending`: Top articles ranked by `ViewCount` descending.
+- `GET /api/recommend/{id}`: Top 3 related articles based on category match and shared tag count.
+- `GET /api/analytics/export`: ClosedXML streaming `.xlsx` spreadsheet matching applied filters.
+
+### 5.3. AI API (`http://localhost:5134`)
+- `POST /api/ai/suggest-tags`: Extract keywords and tags with confidence scores (0.0 to 1.0) using Google AI Studio (Gemini) / OpenAI Chat Completions with NLP heuristic offline fallback. Tags with high selection history receive automatic confidence boosts.
+- `POST /api/ai/learn`: Accept confirmed tags array from Staff article publish and increment selection counts in `LearningCache`.
+- `GET /api/ai/cache`: Inspect current Learning Cache state and tag frequencies.
 
 ---
 
-## 7. Thư Mục Minh Chứng Screenshots & Sample Outputs (Mục 5.10)
+## 6. Frontend Resilience & UX Features
 
-Theo yêu cầu của đề bài tại Mục 5.10, các ảnh chụp giao diện và kết quả mẫu được lưu trữ tại thư mục `screenshots/` bao gồm:
-1. `screenshots/01_Public_News_Portal.png`: Giao diện trang chủ tin tức công khai cho Guest.
-2. `screenshots/02_Related_News_Modal.png`: Hộp thoại chi tiết bài viết kèm Top 3 bài viết liên quan.
-3. `screenshots/03_Admin_Account_Management.png`: Giao diện quản lý tài khoản với Modal Thêm/Sửa/Đổi pass.
-4. `screenshots/04_Staff_Article_Management.png`: Giao diện quản lý tin tức, màu trạng thái Active/Inactive và chọn Tags.
-5. `screenshots/05_Staff_Category_Management.png`: Giao diện quản lý danh mục cha và danh mục con.
-6. `screenshots/06_Lecturer_Read_Only_View.png`: Giao diện xem tin của Giảng viên (ẩn hoàn toàn các nút thao tác).
-7. `screenshots/07_Admin_Report_And_Excel.png`: Báo cáo thống kê số liệu và file Excel `.xlsx` được xuất.
-8. `screenshots/08_FK_Constraint_Delete_Blocked.png`: Thông báo lỗi Toast khi bị chặn xóa do vướng khóa ngoại.
+1. **HttpClient & Thread-Safe Token Refresh**: Custom `TokenRefreshDelegatingHandler` uses `SemaphoreSlim(1, 1)` to prevent race conditions during concurrent 401 token refresh requests.
+2. **Polly Resilience**: Named clients use `WaitAndRetryWithJitter` + Fallback policies for network drops and 5xx errors.
+3. **Offline Mode**:
+   - Connectivity drops trigger a sticky top banner: *"Offline Mode - System is currently unreachable"*.
+   - Serves cached data for read-only viewing.
+   - Automatically disables all Create, Edit, and Delete action buttons across all views.
+4. **Background Worker**: `DataCacheRefreshWorker` runs every 6 hours using `PeriodicTimer`, safely creating an `IServiceScope` via `IServiceScopeFactory` to refresh dashboard and category caches.
+5. **Chart.js Visualizations**: Interactive Bar and Doughnut charts on `/Admin/Reports`.
+6. **SignalR Real-Time Notifications**: Automatically connects to `/hubs/notifications`, triggers Toast notifications on new article events, and retains the latest 10 notifications in the navigation bell dropdown.
+7. **AI Tag Assistant**: Modal AJAX button suggests tags rendered as clickable chips with confidence badges; clicking auto-selects the tag and saves trigger learning feedback via `POST /api/ai/learn`.
+8. **Audit Log Inspection**: Interactive Admin view (`/Admin/AuditLogs`) displaying who made each change, timestamp, and modal Before/After JSON diff inspection.

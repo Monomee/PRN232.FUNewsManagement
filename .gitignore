@@ -60,3 +60,15 @@ nunit-*.xml
 **/.vs/
 **/bin/
 **/obj/
+
+# Application configuration with sensitive keys & credentials (API Keys, JWT Secrets, DB Strings)
+**/appsettings.json
+**/appsettings.*.json
+!**/appsettings.sample.json
+!**/appsettings.example.json
+!**/appsettings.*.sample.json
+!**/appsettings.*.example.json
+
+# Legacy project folders from previous template
+HoangNV_SE1930_A01_BE/
+HoangNV_SE1930_A01_FE/

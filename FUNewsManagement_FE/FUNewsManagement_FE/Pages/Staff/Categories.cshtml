@@ -1,0 +1,435 @@
+@page
+@model FUNewsManagement_FE.Pages.Staff.CategoriesModel
+@{
+    ViewData["Title"] = "Category Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-folder2-open text-primary me-2"></i>Category Management</h2>
+        <p class="text-muted mb-0">Organize and manage article topics and departmental news categories (Staff only).</p>
+    </div>
+    <button type="button" class="btn btn-primary px-3 shadow-sm" onclick="openCreateCategoryModal()">
+        <i class="bi bi-folder-plus me-1"></i> Add New Category
+    </button>
+</div>
+
+<!-- Search & Filter Card -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-3">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" id="categorySearchInput" class="form-control border-start-0" placeholder="Search categories by name or description..." onkeyup="filterCategories()" />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select id="statusFilter" class="form-select" onchange="filterCategories()">
+                    <option value="">-- All Statuses --</option>
+                    <option value="active">Active Only</option>
+                    <option value="inactive">Inactive Only</option>
+                </select>
+            </div>
+            <div class="col-md-3 text-end">
+                <button type="button" class="btn btn-outline-secondary w-100" onclick="resetCategoryFilters()">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Filters
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Categories Table Card -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="categoriesTable">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">ID</th>
+                    <th>Category Name</th>
+                    <th>Description</th>
+                    <th>Parent Category</th>
+                    <th>Article Count</th>
+                    <th>Status</th>
+                    <th class="text-end pe-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="categoriesTableBody">
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">
+                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div> Loading categories...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create / Edit Category Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="categoryModalLabel"><i class="bi bi-folder-plus me-2"></i>Create Category</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="categoryForm">
+                    <input type="hidden" id="modalCategoryId" value="0" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Category Name <span class="text-danger">*</span></label>
+                        <input type="text" id="modalCategoryName" class="form-control" required placeholder="e.g. Technology News" maxlength="100" />
+                        <small class="text-muted">Must be unique under the selected parent category.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Category Description <span class="text-danger">*</span></label>
+                        <textarea id="modalCategoryDescription" class="form-control" rows="3" required placeholder="Brief description of this category topic" maxlength="250"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Parent Category</label>
+                        <select id="modalParentCategoryId" class="form-select">
+                            <option value="">-- None (Top Level Category) --</option>
+                        </select>
+                        <small class="text-muted">Cannot be altered if category already has published articles.</small>
+                    </div>
+
+                    <div class="mb-3 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="modalIsActive" checked />
+                        <label class="form-check-label fw-semibold" for="modalIsActive">Is Active (Visible to Public)</label>
+                    </div>
+
+                    <div id="categoryModalAlert" class="alert alert-danger py-2 d-none" role="alert"></div>
+                </form>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" id="btnSaveCategory" onclick="saveCategory()">
+                    <span id="saveCategorySpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    Save Category
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Category Confirmation Modal -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-trash3-fill me-2"></i>Confirm Category Deletion</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <i class="bi bi-exclamation-triangle text-danger display-4 mb-3 d-block"></i>
+                <h5 class="fw-bold mb-2">Delete this Category?</h5>
+                <p class="text-muted mb-1">Are you sure you want to delete category:</p>
+                <p class="fw-bold fs-6 text-dark mb-3" id="deleteCategoryInfo"></p>
+                <div class="alert alert-warning text-start small mb-0">
+                    <i class="bi bi-shield-exclamation me-1"></i>
+                    <strong>System Integrity Rule:</strong> A category cannot be deleted if any news articles are currently assigned to it.
+                </div>
+            </div>
+            <div class="modal-footer bg-light justify-content-center">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger px-4" id="btnConfirmDeleteCategory" onclick="confirmDeleteCategory()">
+                    <span id="deleteCategorySpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                    Yes, Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let allCategories = [];
+        let categoryModalInstance = null;
+        let deleteCategoryModalInstance = null;
+        let selectedCategoryDeleteId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            categoryModalInstance = new bootstrap.Modal(document.getElementById('categoryModal'));
+            deleteCategoryModalInstance = new bootstrap.Modal(document.getElementById('deleteCategoryModal'));
+            loadCategories();
+        });
+
+        async function loadCategories() {
+            const tbody = document.getElementById('categoriesTableBody');
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div> Loading categories...</td></tr>`;
+
+            try {
+                const response = await apiFetch('category?$orderby=CategoryId asc');
+                if (response.ok) {
+                    allCategories = await response.json();
+                    renderCategories(allCategories);
+                    populateParentCategoryDropdown();
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Failed to load categories. Status: ${response.status}</td></tr>`;
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Error connecting to server. Please check Backend API.</td></tr>`;
+            }
+        }
+
+        function populateParentCategoryDropdown(excludeId = null) {
+            const select = document.getElementById('modalParentCategoryId');
+            select.innerHTML = '<option value="">-- None (Top Level Category) --</option>';
+
+            allCategories.forEach(c => {
+                if (excludeId && c.categoryId === excludeId) return; // Prevent parenting to self
+                const opt = document.createElement('option');
+                opt.value = c.categoryId;
+                opt.textContent = `${c.categoryName} (#${c.categoryId})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderCategories(categories) {
+            const tbody = document.getElementById('categoriesTableBody');
+            if (!categories || categories.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No categories found.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            categories.forEach(c => {
+                const statusBadge = c.isActive 
+                    ? `<button type="button" class="btn btn-sm btn-success rounded-pill px-2 py-0 border-0 btn-toggle-status" title="Click to Deactivate" onclick="toggleCategoryStatus(${c.categoryId}, false)">
+                         <i class="bi bi-check-circle me-1"></i>Active
+                       </button>`
+                    : `<button type="button" class="btn btn-sm btn-secondary rounded-pill px-2 py-0 border-0 btn-toggle-status" title="Click to Activate" onclick="toggleCategoryStatus(${c.categoryId}, true)">
+                         <i class="bi bi-dash-circle me-1"></i>Inactive
+                       </button>`;
+
+                const parentName = c.parentCategoryName 
+                    ? `<span class="badge bg-light text-dark border"><i class="bi bi-diagram-2 me-1"></i>${escapeHtml(c.parentCategoryName)}</span>`
+                    : '<span class="text-muted small">None</span>';
+
+                html += `
+                    <tr>
+                        <td class="ps-4 fw-semibold text-secondary">#${c.categoryId}</td>
+                        <td class="fw-bold text-dark">${escapeHtml(c.categoryName)}</td>
+                        <td><small class="text-muted text-truncate d-inline-block" style="max-width: 280px;" title="${escapeHtml(c.categoryDesciption)}">${escapeHtml(c.categoryDesciption)}</small></td>
+                        <td>${parentName}</td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                <i class="bi bi-file-text me-1"></i>${c.articleCount} articles
+                            </span>
+                        </td>
+                        <td>${statusBadge}</td>
+                        <td class="text-end pe-4">
+                            <button type="button" class="btn btn-sm btn-outline-primary me-1" title="Edit Category" onclick="openEditCategoryModal(${c.categoryId})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete Category" onclick="openDeleteCategoryModal(${c.categoryId}, '${escapeHtml(c.categoryName)}')">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function filterCategories() {
+            const query = (document.getElementById('categorySearchInput').value || '').trim().toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+
+            const filtered = allCategories.filter(c => {
+                const matchesQuery = !query || 
+                    (c.categoryName && c.categoryName.toLowerCase().includes(query)) ||
+                    (c.categoryDesciption && c.categoryDesciption.toLowerCase().includes(query));
+
+                let matchesStatus = true;
+                if (status === 'active') matchesStatus = c.isActive === true;
+                if (status === 'inactive') matchesStatus = c.isActive === false;
+
+                return matchesQuery && matchesStatus;
+            });
+
+            renderCategories(filtered);
+        }
+
+        function resetCategoryFilters() {
+            document.getElementById('categorySearchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            renderCategories(allCategories);
+        }
+
+        function openCreateCategoryModal() {
+            document.getElementById('categoryModalLabel').innerHTML = '<i class="bi bi-folder-plus me-2"></i>Create Category';
+            document.getElementById('modalCategoryId').value = '0';
+            document.getElementById('modalCategoryName').value = '';
+            document.getElementById('modalCategoryDescription').value = '';
+            populateParentCategoryDropdown(null);
+            document.getElementById('modalParentCategoryId').value = '';
+            document.getElementById('modalIsActive').checked = true;
+            document.getElementById('categoryModalAlert').classList.add('d-none');
+            categoryModalInstance.show();
+        }
+
+        function openEditCategoryModal(id) {
+            const category = allCategories.find(c => c.categoryId === id);
+            if (!category) return;
+
+            document.getElementById('categoryModalLabel').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Edit Category';
+            document.getElementById('modalCategoryId').value = category.categoryId;
+            document.getElementById('modalCategoryName').value = category.categoryName;
+            document.getElementById('modalCategoryDescription').value = category.categoryDesciption;
+            populateParentCategoryDropdown(category.categoryId);
+            document.getElementById('modalParentCategoryId').value = category.parentCategoryId || '';
+            document.getElementById('modalIsActive').checked = category.isActive === true;
+            document.getElementById('categoryModalAlert').classList.add('d-none');
+            categoryModalInstance.show();
+        }
+
+        async function saveCategory() {
+            const id = parseInt(document.getElementById('modalCategoryId').value, 10);
+            const name = document.getElementById('modalCategoryName').value.trim();
+            const description = document.getElementById('modalCategoryDescription').value.trim();
+            const parentIdVal = document.getElementById('modalParentCategoryId').value;
+            const parentId = parentIdVal ? parseInt(parentIdVal, 10) : null;
+            const isActive = document.getElementById('modalIsActive').checked;
+            const alertEl = document.getElementById('categoryModalAlert');
+
+            if (!name || !description) {
+                alertEl.textContent = 'Category name and description are mandatory.';
+                alertEl.classList.remove('d-none');
+                return;
+            }
+
+            const btn = document.getElementById('btnSaveCategory');
+            const spinner = document.getElementById('saveCategorySpinner');
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+            alertEl.classList.add('d-none');
+
+            try {
+                let response;
+                if (id === 0) {
+                    response = await apiFetch('category', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            categoryName: name,
+                            categoryDesciption: description,
+                            parentCategoryId: parentId,
+                            isActive: isActive
+                        })
+                    });
+                } else {
+                    response = await apiFetch(`category/${id}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            categoryName: name,
+                            categoryDesciption: description,
+                            parentCategoryId: parentId,
+                            isActive: isActive
+                        })
+                    });
+                }
+
+                if (response.ok) {
+                    categoryModalInstance.hide();
+                    showToast(id === 0 ? 'Category created successfully!' : 'Category updated successfully!', 'success');
+                    await loadCategories();
+                } else {
+                    const err = await response.json();
+                    alertEl.textContent = err.message || 'An error occurred while saving category.';
+                    alertEl.classList.remove('d-none');
+                }
+            } catch (err) {
+                alertEl.textContent = 'Error: ' + err.message;
+                alertEl.classList.remove('d-none');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+            }
+        }
+
+        function openDeleteCategoryModal(id, name) {
+            selectedCategoryDeleteId = id;
+            document.getElementById('deleteCategoryInfo').textContent = `${name} (ID: #${id})`;
+            deleteCategoryModalInstance.show();
+        }
+
+        async function confirmDeleteCategory() {
+            if (!selectedCategoryDeleteId) return;
+
+            const btn = document.getElementById('btnConfirmDeleteCategory');
+            const spinner = document.getElementById('deleteCategorySpinner');
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
+
+            try {
+                const response = await apiFetch(`category/${selectedCategoryDeleteId}`, {
+                    method: 'DELETE'
+                });
+
+                deleteCategoryModalInstance.hide();
+
+                if (response.ok || response.status === 204) {
+                    showToast('Category deleted successfully!', 'success');
+                    await loadCategories();
+                } else {
+                    let errMsg = 'Failed to delete category.';
+                    try {
+                        const err = await response.json();
+                        errMsg = err.message || errMsg;
+                    } catch {}
+                    showToast(errMsg, 'danger');
+                }
+            } catch (err) {
+                deleteCategoryModalInstance.hide();
+                showToast('Error: ' + err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+                selectedCategoryDeleteId = null;
+            }
+        }
+
+        async function toggleCategoryStatus(id, newStatus) {
+            const category = allCategories.find(c => c.categoryId === id);
+            if (!category) return;
+
+            try {
+                const payload = {
+                    categoryName: category.categoryName,
+                    categoryDesciption: category.categoryDesciption,
+                    parentCategoryId: category.parentCategoryId,
+                    isActive: newStatus
+                };
+
+                const res = await apiFetch(`category/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    showToast(`Category "${category.categoryName}" is now ${newStatus ? 'Active' : 'Inactive'}!`, 'success');
+                    await loadCategories();
+                } else {
+                    let errMsg = 'Failed to update category status.';
+                    try {
+                        const err = await res.json();
+                        errMsg = err.message || errMsg;
+                    } catch {}
+                    showToast(errMsg, 'danger');
+                }
+            } catch (e) {
+                showToast('Error updating category status: ' + e.message, 'danger');
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+    </script>
+}

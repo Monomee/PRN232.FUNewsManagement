@@ -1,0 +1,612 @@
+@page
+@model FUNewsManagement_FE.Pages.IndexModel
+@{
+    ViewData["Title"] = "Public News Portal";
+}
+
+<!-- Hero Banner -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-primary text-white bg-gradient">
+    <div class="card-body p-4 p-lg-5">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-white text-primary rounded-pill px-3 py-2 fw-bold mb-2 shadow-sm">
+                    <i class="bi bi-mortarboard-fill me-1"></i> FU News Hub
+                </span>
+                <h1 class="display-6 fw-bold mb-2">University News & Announcements</h1>
+                <p class="lead text-white-50 mb-4">Discover the latest academic research, faculty milestones, alumni successes, and student initiatives.</p>
+                <div class="d-flex flex-wrap gap-2" id="categoryPillsContainer">
+                    <button type="button" class="btn btn-light btn-sm rounded-pill active px-3" onclick="filterByCategory(null, this)">All News</button>
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+            <div class="col-lg-4 text-center d-none d-lg-block">
+                <i class="bi bi-newspaper display-1 text-white opacity-25"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .trending-card {
+        transition: transform 0.25s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .trending-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12) !important;
+    }
+    .backdrop-blur {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .hover-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08) !important;
+    }
+</style>
+
+<!-- Trending Spotlight Section (Top 3 Trending News - Live SignalR) -->
+<div class="mb-5" id="trendingSpotlightSection">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-danger text-white rounded-pill px-3 py-2 fw-bold shadow-sm">
+                <i class="bi bi-fire me-1"></i> XU HƯỚNG
+            </span>
+            <h4 class="fw-bold mb-0 text-dark">Tin Tức Thịnh Hành (Trending Now)</h4>
+            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-1 small">
+                <i class="bi bi-broadcast me-1"></i>Live SignalR
+            </span>
+        </div>
+        <small class="text-muted"><i class="bi bi-graph-up-arrow text-danger me-1"></i>BXH xếp hạng theo lượt đọc trực tiếp từ Analytics API</small>
+    </div>
+
+    <div class="row g-4" id="trendingCardsContainer">
+        <!-- Dynamically populated top 3 trending articles -->
+        <div class="col-12 text-center py-4 text-muted">
+            <div class="spinner-border spinner-border-sm text-danger me-2"></div> Đang tải tin thịnh hành...
+        </div>
+    </div>
+</div>
+
+<!-- Main News Header with Sort Toggle (Latest vs Trending) -->
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pt-4 border-top">
+    <div>
+        <h4 class="fw-bold mb-1 text-dark">
+            <i class="bi bi-newspaper text-primary me-2"></i>Bản Tin Tổng Hợp
+        </h4>
+        <p class="text-muted small mb-0">Các bài viết mới đăng tải từ đội ngũ giảng viên và nhân viên nhà trường</p>
+    </div>
+    <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+        <span class="text-muted small fw-semibold d-none d-sm-inline">Sắp xếp:</span>
+        <div class="btn-group shadow-sm rounded-pill p-1 bg-light border" role="group">
+            <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-semibold" id="btnSortLatest" onclick="changeSortOrder('latest')">
+                <i class="bi bi-clock-history me-1"></i> Mới nhất
+            </button>
+            <button type="button" class="btn btn-sm btn-light rounded-pill px-3 fw-semibold text-muted" id="btnSortTrending" onclick="changeSortOrder('trending')">
+                <i class="bi bi-fire text-danger me-1"></i> Xem nhiều nhất
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Search Bar & Controls -->
+<div class="row g-3 mb-4">
+    <div class="col-md-8">
+        <div class="input-group shadow-sm rounded-3">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-primary"></i></span>
+            <input type="text" id="publicSearchInput" class="form-control border-start-0 py-2" placeholder="Tìm kiếm tin tức theo tiêu đề, tóm tắt, nội dung..." onkeyup="filterNews()" />
+            <button class="btn btn-outline-secondary" type="button" onclick="resetPublicSearch()">Xóa lọc</button>
+        </div>
+    </div>
+    <div class="col-md-4 text-end">
+        <div class="d-flex justify-content-end align-items-center gap-2 h-100">
+            <span class="text-muted small" id="articleCountText">Đang tải tin tức...</span>
+        </div>
+    </div>
+</div>
+
+<!-- News Cards Grid -->
+<div class="row g-4" id="newsGridContainer">
+    <div class="col-12 text-center py-5 text-muted">
+        <div class="spinner-border text-primary me-2" role="status"></div> Loading public news...
+    </div>
+</div>
+
+<!-- Article Detail Modal with Top 3 Recommendations -->
+<div class="modal fade" id="publicDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content shadow-lg border-0 rounded-4">
+            <div class="modal-header border-bottom-0 pb-0">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill" id="pubModalCategory">Academic News</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 pt-2">
+                <h2 class="fw-bold text-dark mt-2 mb-2" id="pubModalTitle">Article Title</h2>
+                
+                <div class="d-flex flex-wrap align-items-center gap-3 text-muted small mb-4 border-bottom pb-3">
+                    <span><i class="bi bi-person-fill text-primary me-1"></i><strong id="pubModalAuthor" class="text-dark">Author</strong></span>
+                    <span><i class="bi bi-calendar-event me-1"></i><span id="pubModalDate">Date</span></span>
+                    <span><i class="bi bi-link-45deg me-1"></i>Source: <span id="pubModalSource">N/A</span></span>
+                </div>
+
+                <div class="p-3 bg-light rounded-3 mb-4 border-start border-primary border-4 shadow-sm">
+                    <p class="fw-semibold text-secondary mb-0 fst-italic fs-6" id="pubModalHeadline">Headline</p>
+                </div>
+
+                <div class="article-content text-dark mb-4" id="pubModalContent" style="white-space: pre-line; line-height: 1.8; font-size: 1.05rem;">
+                    Content...
+                </div>
+
+                <div class="mb-4" id="pubModalTagsContainer">
+                    <!-- Tags badges -->
+                </div>
+
+                <!-- Top 3 Related Articles Recommendation Block -->
+                <div class="border-top pt-4 mt-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0 text-dark">
+                            <i class="bi bi-stars text-warning me-2"></i> Related News (Top 3 Recommendations)
+                        </h5>
+                        <small class="text-muted">Same category or shared tags</small>
+                    </div>
+                    <div class="row g-3" id="pubModalRelatedContainer">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light rounded-bottom-4 border-top-0">
+                <button type="button" class="btn btn-secondary px-4 rounded-pill" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let publicArticles = [];
+        let publicCategories = [];
+        let topTrendingArticles = [];
+        let currentSortOrder = 'latest'; // 'latest' or 'trending'
+        let selectedCategoryId = null;
+        let publicDetailModalInstance = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            publicDetailModalInstance = new bootstrap.Modal(document.getElementById('publicDetailModal'));
+            
+            // 1. Instant Cache Hydration: Hiển thị ngay lập tức từ cache trong 0ms (không cần chờ API)
+            hydrateFromCache();
+
+            // 2. Tải song song (Parallel) tất cả API thay vì tuần tự (Sequential)
+            Promise.all([
+                loadPublicCategories(),
+                loadPublicArticles(),
+                loadTrendingSpotlight()
+            ]).catch(err => console.warn("Lỗi tải dữ liệu công khai:", err));
+        });
+
+        // Instant Cache Hydration: Render tin tức ngay lập tức để người dùng không phải nhìn spinner
+        function hydrateFromCache() {
+            try {
+                const cachedStr = localStorage.getItem("offline_cache_top10") || localStorage.getItem("offline_cache_news");
+                if (cachedStr) {
+                    const cachedNews = JSON.parse(cachedStr);
+                    if (Array.isArray(cachedNews) && cachedNews.length > 0 && publicArticles.length === 0) {
+                        publicArticles = cachedNews;
+                        filterNews();
+                        const topTrending = [...cachedNews].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0)).slice(0, 3);
+                        renderTrendingCards(topTrending);
+                    }
+                }
+            } catch (e) {}
+        }
+
+        async function loadPublicCategories() {
+            try {
+                const response = await apiFetch('category?$filter=IsActive eq true&$orderby=CategoryName asc');
+                if (response.ok) {
+                    publicCategories = await response.json();
+                    const container = document.getElementById('categoryPillsContainer');
+                    publicCategories.forEach(c => {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'btn btn-outline-light btn-sm rounded-pill px-3';
+                        btn.textContent = c.categoryName;
+                        btn.onclick = function() { filterByCategory(c.categoryId, this); };
+                        container.appendChild(btn);
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading categories:', err);
+            }
+        }
+
+        async function loadPublicArticles() {
+            const container = document.getElementById('newsGridContainer');
+            if (publicArticles.length === 0) {
+                container.innerHTML = `<div class="col-12 text-center py-5 text-muted"><div class="spinner-border text-primary me-2"></div> Loading public news...</div>`;
+            }
+
+            try {
+                // Fetch active articles only
+                const response = await apiFetch('news?$filter=NewsStatus eq true&$orderby=CreatedDate desc');
+                if (response.ok) {
+                    publicArticles = await response.json();
+                    filterNews();
+                } else if (publicArticles.length === 0) {
+                    container.innerHTML = `<div class="col-12 text-center py-5 text-danger">Failed to load articles. Status: ${response.status}</div>`;
+                }
+            } catch (err) {
+                if (publicArticles.length === 0) {
+                    container.innerHTML = `<div class="col-12 text-center py-5 text-danger">Could not connect to Backend API.</div>`;
+                }
+            }
+        }
+
+        function renderNewsCards(articles) {
+            const container = document.getElementById('newsGridContainer');
+            const countText = document.getElementById('articleCountText');
+
+            if (!articles || articles.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="bi bi-inbox text-muted display-3 mb-3 d-block"></i>
+                        <h5 class="text-muted">No published articles found matching your criteria.</h5>
+                    </div>
+                `;
+                countText.textContent = '0 articles found';
+                return;
+            }
+
+            countText.textContent = `Showing ${articles.length} article(s)`;
+
+            let html = '';
+            articles.forEach(a => {
+                let tagsHtml = '';
+                if (a.tags && a.tags.length > 0) {
+                    tagsHtml = a.tags.slice(0, 3).map(t => `<span class="badge bg-light text-dark border me-1"><i class="bi bi-tag-fill me-1 text-primary"></i>${escapeHtml(t.tagName)}</span>`).join('');
+                }
+
+                html += `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-card">
+                            ${a.imageUrl ? `<img src="${escapeHtml(a.imageUrl)}" alt="Cover" class="card-img-top" style="height: 180px; object-fit: cover;" />` : ''}
+                            <div class="card-body p-4 d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">
+                                        ${escapeHtml(a.categoryName || 'University News')}
+                                    </span>
+                                    <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>${formatDate(a.createdDate)}</small>
+                                </div>
+                                <h5 class="fw-bold text-dark mb-2 line-clamp-2" title="${escapeHtml(a.newsTitle || '')}">
+                                    ${escapeHtml(a.newsTitle || '')}
+                                </h5>
+                                <p class="text-muted small line-clamp-3 mb-3 flex-grow-1">
+                                    ${escapeHtml(a.headline || a.newsContent || '')}
+                                </p>
+                                <div class="mb-3">
+                                    ${tagsHtml}
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <small class="text-muted"><i class="bi bi-person me-1"></i>${escapeHtml(a.createdByName || 'FU Faculty')}</small>
+                                        <span class="badge bg-light text-secondary border rounded-pill small" title="Total Views">
+                                            <i class="bi bi-eye-fill me-1 text-danger"></i><span id="view-count-${a.newsArticleId}">${(a.viewCount || 0).toLocaleString()}</span>
+                                        </span>
+                                    </div>
+                                    <a href="/NewsDetail?id=${encodeURIComponent(a.newsArticleId)}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                        Read More <i class="bi bi-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function filterByCategory(catId, btnEl) {
+            selectedCategoryId = catId;
+
+            // Update active pill button
+            document.querySelectorAll('#categoryPillsContainer button').forEach(b => {
+                b.className = 'btn btn-outline-light btn-sm rounded-pill px-3';
+            });
+            if (btnEl) {
+                btnEl.className = 'btn btn-light btn-sm rounded-pill active px-3';
+            }
+
+            filterNews();
+        }
+
+        function changeSortOrder(order) {
+            currentSortOrder = order;
+            const btnLatest = document.getElementById('btnSortLatest');
+            const btnTrending = document.getElementById('btnSortTrending');
+
+            if (order === 'latest') {
+                btnLatest.className = 'btn btn-sm btn-primary rounded-pill px-3 fw-semibold';
+                btnTrending.className = 'btn btn-sm btn-light rounded-pill px-3 fw-semibold text-muted';
+            } else {
+                btnLatest.className = 'btn btn-sm btn-light rounded-pill px-3 fw-semibold text-muted';
+                btnTrending.className = 'btn btn-sm btn-danger rounded-pill px-3 fw-semibold text-white';
+            }
+
+            filterNews();
+        }
+
+        function filterNews() {
+            const query = (document.getElementById('publicSearchInput').value || '').trim().toLowerCase();
+
+            let filtered = publicArticles.filter(a => {
+                const matchesCat = !selectedCategoryId || a.categoryId === selectedCategoryId;
+                const matchesQuery = !query ||
+                    (a.newsTitle && a.newsTitle.toLowerCase().includes(query)) ||
+                    (a.headline && a.headline.toLowerCase().includes(query)) ||
+                    (a.newsContent && a.newsContent.toLowerCase().includes(query)) ||
+                    (a.createdByName && a.createdByName.toLowerCase().includes(query));
+
+                return matchesCat && matchesQuery;
+            });
+
+            // Sắp xếp bài viết theo Sort Order đang chọn
+            if (currentSortOrder === 'latest') {
+                filtered.sort((a, b) => new Date(b.createdDate || 0) - new Date(a.createdDate || 0));
+            } else if (currentSortOrder === 'trending') {
+                filtered.sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
+            }
+
+            renderNewsCards(filtered);
+        }
+
+        function resetPublicSearch() {
+            document.getElementById('publicSearchInput').value = '';
+            changeSortOrder('latest');
+            filterByCategory(null, document.querySelector('#categoryPillsContainer button'));
+        }
+
+        async function openPublicDetail(id) {
+            const article = publicArticles.find(a => a.newsArticleId === id);
+            if (!article) return;
+
+            // Trigger view increment asynchronously
+            fetch(`${window.CORE_API_URL}news/${encodeURIComponent(id)}/view`, { method: 'POST' }).catch(() => {});
+
+            document.getElementById('pubModalCategory').textContent = article.categoryName || 'University News';
+            document.getElementById('pubModalTitle').textContent = article.newsTitle || '';
+            document.getElementById('pubModalAuthor').textContent = article.createdByName || 'FU Faculty';
+            document.getElementById('pubModalDate').textContent = formatDate(article.createdDate);
+            document.getElementById('pubModalSource').textContent = article.newsSource || 'Official University Portal';
+            document.getElementById('pubModalHeadline').textContent = article.headline || '';
+            document.getElementById('pubModalContent').textContent = article.newsContent || '';
+
+            const tagsContainer = document.getElementById('pubModalTagsContainer');
+            if (article.tags && article.tags.length > 0) {
+                tagsContainer.innerHTML = '<span class="fw-semibold small text-muted me-2">Tags:</span>' + 
+                    article.tags.map(t => `<span class="badge bg-light text-dark border me-1"><i class="bi bi-tag-fill me-1 text-primary"></i>${escapeHtml(t.tagName)}</span>`).join('');
+            } else {
+                tagsContainer.innerHTML = '';
+            }
+
+            // Fetch Top 3 Related Articles from Analytics API
+            const relatedContainer = document.getElementById('pubModalRelatedContainer');
+            relatedContainer.innerHTML = '<div class="col-12 text-muted small"><div class="spinner-border spinner-border-sm me-1"></div> Finding top 3 recommendations from Analytics API...</div>';
+
+            try {
+                const fetchFn = typeof authenticatedFetch === 'function' ? authenticatedFetch : fetch;
+                let resp = await fetchFn(`${window.ANALYTICS_API_URL}recommend/${id}`).catch(() => null);
+                if (!resp || !resp.ok) {
+                    resp = await fetchFn(`${window.CORE_API_URL}news/${id}/related`).catch(() => null);
+                }
+                if (resp && resp.ok) {
+                    const relatedArticles = await resp.json().catch(() => []);
+                    if (!relatedArticles || relatedArticles.length === 0) {
+                        relatedContainer.innerHTML = '<div class="col-12 text-muted small fst-italic">No related articles found.</div>';
+                    } else {
+                        let relHtml = '';
+                        relatedArticles.forEach(ra => {
+                            relHtml += `
+                                <div class="col-md-4">
+                                    <div class="card h-100 border rounded-3 p-3 bg-light shadow-sm">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="badge bg-primary-subtle text-primary border" style="font-size: 0.72rem;">${escapeHtml(ra.categoryName || 'News')}</span>
+                                            <small class="text-muted" style="font-size: 0.7rem;">${formatDate(ra.createdDate)}</small>
+                                        </div>
+                                        <h6 class="fw-bold mb-1 text-truncate" title="${escapeHtml(ra.newsTitle || '')}">${escapeHtml(ra.newsTitle || '')}</h6>
+                                        <p class="small text-muted line-clamp-2 mb-2" title="${escapeHtml(ra.headline || '')}">${escapeHtml(ra.headline || '')}</p>
+                                        <button type="button" class="btn btn-sm btn-outline-primary mt-auto" onclick="openPublicDetail('${ra.newsArticleId}')">
+                                            Read Article <i class="bi bi-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        relatedContainer.innerHTML = relHtml;
+                    }
+                }
+            } catch (err) {
+                relatedContainer.innerHTML = '<div class="col-12 text-muted small">Could not load recommendations.</div>';
+            }
+
+            publicDetailModalInstance.show();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+
+        // Top Trending Spotlight Loader & Renderer
+        async function loadTrendingSpotlight(highlightId = null) {
+            const container = document.getElementById('trendingCardsContainer');
+            try {
+                const fetchFn = typeof authenticatedFetch === 'function' ? authenticatedFetch : fetch;
+                
+                // Fast 1.5s timeout for Analytics API to prevent blocking UI
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+                let res = await fetchFn(`${window.ANALYTICS_API_URL}analytics/trending?top=3`, { signal: controller.signal })
+                    .catch(() => null);
+                clearTimeout(timeoutId);
+
+                let items = [];
+                if (res && res.ok) {
+                    items = await res.json().catch(() => []);
+                }
+
+                // Fallback nếu Analytics API offline: lấy top 3 viewCount cao nhất từ danh sách publicArticles
+                if (!items || items.length === 0) {
+                    if (publicArticles && publicArticles.length > 0) {
+                        items = [...publicArticles].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0)).slice(0, 3);
+                    }
+                }
+
+                if (items && items.length > 0) {
+                    topTrendingArticles = items;
+                    renderTrendingCards(items, highlightId);
+                } else if (!topTrendingArticles || topTrendingArticles.length === 0) {
+                    container.innerHTML = '<div class="col-12 text-center py-4 text-muted">Chưa có bài viết thịnh hành.</div>';
+                }
+            } catch (e) {
+                if (publicArticles && publicArticles.length > 0) {
+                    const fallback = [...publicArticles].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0)).slice(0, 3);
+                    renderTrendingCards(fallback, highlightId);
+                }
+            }
+        }
+
+        function renderTrendingCards(items, highlightId = null) {
+            const container = document.getElementById('trendingCardsContainer');
+            if (!container) return;
+
+            let html = '';
+            items.forEach((item, idx) => {
+                let rankBadge = '';
+                let borderClass = '';
+                if (idx === 0) {
+                    rankBadge = '<span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm"><i class="bi bi-trophy-fill me-1"></i>#1 Trending</span>';
+                    borderClass = 'border border-warning border-2';
+                } else if (idx === 1) {
+                    rankBadge = '<span class="badge bg-secondary text-white px-3 py-2 rounded-pill fw-bold shadow-sm"><i class="bi bi-award-fill me-1"></i>#2 Trending</span>';
+                    borderClass = 'border border-secondary-subtle';
+                } else {
+                    rankBadge = '<span class="badge bg-warning-subtle text-warning border px-3 py-2 rounded-pill fw-bold"><i class="bi bi-award me-1"></i>#3 Trending</span>';
+                    borderClass = 'border border-light-subtle';
+                }
+
+                const isHighlighted = highlightId && (item.newsArticleId || '').toString() === highlightId.toString();
+                const highlightStyle = isHighlighted ? 'background-color: rgba(255, 193, 7, 0.18); transform: translateY(-4px);' : '';
+
+                const imgUrl = item.imageUrl || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=600';
+                const dateStr = item.createdDate ? new Date(item.createdDate).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Gần đây';
+
+                html += `
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card h-100 shadow-sm rounded-4 overflow-hidden trending-card ${borderClass}" 
+                             id="trending-spotlight-${item.newsArticleId}"
+                             style="transition: all 0.3s ease; ${highlightStyle}">
+                            <div class="position-relative overflow-hidden" style="height: 190px;">
+                                <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(item.newsTitle)}" class="w-100 h-100 object-fit-cover" />
+                                <div class="position-absolute top-0 start-0 m-3 d-flex gap-2">
+                                    ${rankBadge}
+                                </div>
+                                <div class="position-absolute bottom-0 end-0 m-3">
+                                    <span class="badge bg-dark bg-opacity-75 text-white rounded-pill px-3 py-1 backdrop-blur shadow-sm">
+                                        <i class="bi bi-eye-fill text-danger me-1"></i><span id="spotlight-view-${item.newsArticleId}">${(item.viewCount || 0).toLocaleString()}</span> views
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body p-4 d-flex flex-column">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">
+                                        ${escapeHtml(item.categoryName || 'Tin tức')}
+                                    </span>
+                                    <small class="text-muted"><i class="bi bi-calendar3 me-1"></i>${dateStr}</small>
+                                </div>
+                                <h5 class="fw-bold text-dark mb-2 line-clamp-2" title="${escapeHtml(item.newsTitle || '')}">
+                                    <a href="/NewsDetail?id=${encodeURIComponent(item.newsArticleId)}" class="text-dark text-decoration-none text-primary-hover">
+                                        ${escapeHtml(item.newsTitle || 'Untitled')}
+                                    </a>
+                                </h5>
+                                <p class="text-muted small line-clamp-2 mb-3 flex-grow-1">
+                                    ${escapeHtml(item.headline || '')}
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                                    <small class="text-muted"><i class="bi bi-person me-1"></i>${escapeHtml(item.authorName || 'Ban biên tập')}</small>
+                                    <a href="/NewsDetail?id=${encodeURIComponent(item.newsArticleId)}" class="btn btn-sm btn-danger rounded-pill px-3 shadow-sm fw-semibold">
+                                        Đọc ngay <i class="bi bi-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+
+            if (highlightId) {
+                setTimeout(() => {
+                    const el = document.getElementById(`trending-spotlight-${highlightId}`);
+                    if (el) el.style.backgroundColor = '';
+                }, 2200);
+            }
+        }
+
+        // Real-Time SignalR View Count & Trending Updates Listener
+        window.addEventListener("funews:viewUpdated", function (e) {
+            const data = e.detail;
+            if (!data || !data.articleId) return;
+
+            const targetId = data.articleId.toString();
+
+            // 1. Cập nhật trong mảng publicArticles
+            const item = publicArticles.find(a => (a.newsArticleId || '').toString() === targetId);
+            if (item) {
+                item.viewCount = data.viewCount;
+            }
+
+            // 2. Cập nhật badge trong News Cards Grid
+            const badgeEl = document.getElementById(`view-count-${targetId}`);
+            if (badgeEl) {
+                badgeEl.textContent = (data.viewCount || 0).toLocaleString();
+                const parent = badgeEl.closest('.badge');
+                if (parent) {
+                    parent.classList.remove('bg-light', 'text-secondary');
+                    parent.classList.add('bg-warning-subtle', 'text-warning');
+                    setTimeout(() => {
+                        parent.classList.remove('bg-warning-subtle', 'text-warning');
+                        parent.classList.add('bg-light', 'text-secondary');
+                    }, 2000);
+                }
+            }
+
+            // 3. Cập nhật trong Top Trending Spotlight
+            const tItem = topTrendingArticles.find(a => (a.newsArticleId || '').toString() === targetId);
+            if (tItem) {
+                tItem.viewCount = data.viewCount;
+                topTrendingArticles.sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
+                renderTrendingCards(topTrendingArticles, targetId);
+            } else {
+                loadTrendingSpotlight(targetId);
+            }
+
+            // 4. Nếu đang sắp xếp theo 'trending', tự động re-sort lại danh sách chính
+            if (currentSortOrder === 'trending') {
+                filterNews();
+            }
+        });
+    </script>
+}

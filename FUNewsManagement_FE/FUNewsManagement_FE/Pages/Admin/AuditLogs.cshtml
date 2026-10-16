@@ -1,0 +1,277 @@
+@page
+@model FUNewsManagement_FE.Pages.Admin.AuditLogsModel
+@{
+    ViewData["Title"] = "Audit Logs";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-journal-text text-primary me-2"></i>Audit Logs (Data Changes)</h2>
+        <p class="text-muted mb-0">Record of all CRUD activities, responsible users, timestamps, and Before/After snapshots.</p>
+    </div>
+    <div>
+        <button type="button" class="btn btn-outline-primary" onclick="loadAuditLogs(1)">
+            <i class="bi bi-arrow-clockwise me-1"></i> Refresh Logs
+        </button>
+    </div>
+</div>
+
+<!-- Filters Card -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label fw-semibold">Filter by User / ID</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
+                    <input type="text" id="filterUserId" class="form-control" placeholder="Search user ID or email..." />
+                </div>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label fw-semibold">Entity Type</label>
+                <select id="filterEntityName" class="form-select">
+                    <option value="">-- All Entities --</option>
+                    <option value="NewsArticle">NewsArticle</option>
+                    <option value="Category">Category</option>
+                    <option value="Tag">Tag</option>
+                    <option value="SystemAccount">SystemAccount</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary w-100" onclick="loadAuditLogs(1)">
+                        <i class="bi bi-funnel-fill me-1"></i> Filter
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="resetFilters()">
+                        Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Audit Logs Table Card -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Log ID</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Entity</th>
+                        <th>Timestamp (UTC)</th>
+                        <th class="text-end pe-4">Payload Snapshots</th>
+                    </tr>
+                </thead>
+                <tbody id="auditLogsTableBody">
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <span class="spinner-border spinner-border-sm me-2 text-primary" role="status"></span>
+                            Loading audit logs...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+        <span class="text-muted small" id="auditPaginationInfo">Showing 0 of 0</span>
+        <nav aria-label="Audit pagination">
+            <ul class="pagination pagination-sm mb-0" id="auditPaginationControls">
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Detail Before/After JSON Modal -->
+<div class="modal fade" id="auditDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow rounded-4 border-0">
+            <div class="modal-header bg-dark text-white rounded-top-4">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-file-code-fill text-warning me-2"></i>Audit Change Snapshot: <span id="modalAuditTitle"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <small class="text-muted d-block">Performed By</small>
+                        <strong id="modalAuditUser">-</strong>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted d-block">Action & Entity</small>
+                        <span id="modalAuditActionBadge"></span> <strong id="modalAuditEntity">-</strong>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted d-block">Timestamp</small>
+                        <span id="modalAuditTime" class="font-monospace">-</span>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="fw-bold mb-1 text-danger"><i class="bi bi-dash-circle me-1"></i>Before State (JSON)</label>
+                        <pre class="bg-light p-3 rounded-3 border font-monospace text-wrap" style="max-height: 350px; overflow-y: auto;" id="modalBeforeJson">N/A</pre>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="fw-bold mb-1 text-success"><i class="bi bi-plus-circle me-1"></i>After State (JSON)</label>
+                        <pre class="bg-light p-3 rounded-3 border font-monospace text-wrap" style="max-height: 350px; overflow-y: auto;" id="modalAfterJson">N/A</pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light rounded-bottom-4">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let currentLogs = [];
+    let currentPage = 1;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loadAuditLogs(1);
+    });
+
+    function resetFilters() {
+        document.getElementById("filterUserId").value = "";
+        document.getElementById("filterEntityName").value = "";
+        loadAuditLogs(1);
+    }
+
+    async function loadAuditLogs(page) {
+        currentPage = page;
+        const tbody = document.getElementById("auditLogsTableBody");
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted"><span class="spinner-border spinner-border-sm me-2 text-primary" role="status"></span>Loading audit records...</td></tr>`;
+
+        const userId = encodeURIComponent(document.getElementById("filterUserId").value.trim());
+        const entity = encodeURIComponent(document.getElementById("filterEntityName").value.trim());
+        const url = `${window.CORE_API_URL}auditlog?page=${page}&pageSize=15&userId=${userId}&entityName=${entity}`;
+
+        try {
+            const res = await authenticatedFetch(url);
+            if (!res.ok) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Failed to load audit logs (HTTP ${res.status}).</td></tr>`;
+                return;
+            }
+
+            const data = await res.json();
+            currentLogs = data.items || [];
+
+            if (currentLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-muted"><i class="bi bi-inbox fs-3 d-block mb-2"></i>No audit records found matching criteria.</td></tr>`;
+                document.getElementById("auditPaginationInfo").innerText = "Showing 0 of 0";
+                document.getElementById("auditPaginationControls").innerHTML = "";
+                return;
+            }
+
+            renderLogsTable(currentLogs);
+            renderPagination(data.totalCount, data.page, data.pageSize, data.totalPages);
+        } catch (err) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Connection error: ${err.message}</td></tr>`;
+        }
+    }
+
+    function renderLogsTable(logs) {
+        const tbody = document.getElementById("auditLogsTableBody");
+        tbody.innerHTML = "";
+
+        logs.forEach((log, index) => {
+            const tr = document.createElement("tr");
+
+            let actionBadge = `<span class="badge bg-secondary">${log.action}</span>`;
+            if (log.action === "Create") actionBadge = `<span class="badge bg-success">Create</span>`;
+            else if (log.action === "Update") actionBadge = `<span class="badge bg-warning text-dark">Update</span>`;
+            else if (log.action === "Delete") actionBadge = `<span class="badge bg-danger">Delete</span>`;
+
+            tr.innerHTML = `
+                <td class="ps-4 fw-bold font-monospace">#${log.id}</td>
+                <td><span class="badge bg-light text-dark border"><i class="bi bi-person me-1"></i>${escapeHtml(log.userId || "System")}</span></td>
+                <td>${actionBadge}</td>
+                <td><span class="fw-semibold text-primary">${escapeHtml(log.entityName)}</span></td>
+                <td class="font-monospace text-muted small">${new Date(log.timestamp).toLocaleString()}</td>
+                <td class="text-end pe-4">
+                    <button class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="viewAuditDetail(${index})">
+                        <i class="bi bi-eye-fill me-1"></i> View Changes
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function renderPagination(totalCount, page, pageSize, totalPages) {
+        document.getElementById("auditPaginationInfo").innerText = `Showing ${Math.min(totalCount, (page - 1) * pageSize + 1)} to ${Math.min(totalCount, page * pageSize)} of ${totalCount} records`;
+
+        const controls = document.getElementById("auditPaginationControls");
+        controls.innerHTML = "";
+
+        if (totalPages <= 1) return;
+
+        // Prev
+        const prevLi = document.createElement("li");
+        prevLi.className = `page-item ${page <= 1 ? "disabled" : ""}`;
+        prevLi.innerHTML = `<button class="page-link" onclick="loadAuditLogs(${page - 1})">Previous</button>`;
+        controls.appendChild(prevLi);
+
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= page - 2 && i <= page + 2)) {
+                const li = document.createElement("li");
+                li.className = `page-item ${i === page ? "active" : ""}`;
+                li.innerHTML = `<button class="page-link" onclick="loadAuditLogs(${i})">${i}</button>`;
+                controls.appendChild(li);
+            }
+        }
+
+        // Next
+        const nextLi = document.createElement("li");
+        nextLi.className = `page-item ${page >= totalPages ? "disabled" : ""}`;
+        nextLi.innerHTML = `<button class="page-link" onclick="loadAuditLogs(${page + 1})">Next</button>`;
+        controls.appendChild(nextLi);
+    }
+
+    function viewAuditDetail(index) {
+        const item = currentLogs[index];
+        if (!item) return;
+
+        document.getElementById("modalAuditTitle").innerText = `#${item.id} (${item.entityName})`;
+        document.getElementById("modalAuditUser").innerText = item.userId || "System";
+        document.getElementById("modalAuditEntity").innerText = item.entityName;
+        document.getElementById("modalAuditTime").innerText = new Date(item.timestamp).toISOString();
+
+        let actionBadge = `<span class="badge bg-secondary">${item.action}</span>`;
+        if (item.action === "Create") actionBadge = `<span class="badge bg-success">Create</span>`;
+        else if (item.action === "Update") actionBadge = `<span class="badge bg-warning text-dark">Update</span>`;
+        else if (item.action === "Delete") actionBadge = `<span class="badge bg-danger">Delete</span>`;
+        document.getElementById("modalAuditActionBadge").innerHTML = actionBadge;
+
+        // Format JSON
+        document.getElementById("modalBeforeJson").innerText = formatJsonPretty(item.beforeJson);
+        document.getElementById("modalAfterJson").innerText = formatJsonPretty(item.afterJson);
+
+        const modal = new bootstrap.Modal(document.getElementById("auditDetailModal"));
+        modal.show();
+    }
+
+    function formatJsonPretty(raw) {
+        if (!raw) return "No data recorded (null)";
+        try {
+            const parsed = JSON.parse(raw);
+            return JSON.stringify(parsed, null, 2);
+        } catch {
+            return raw;
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+</script>
+}
