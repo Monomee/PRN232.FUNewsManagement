@@ -224,7 +224,8 @@
 
     async function loadCategoriesDropdown() {
         try {
-            const res = await fetch(`${window.CORE_API_URL}category`);
+            const fetchFn = typeof authenticatedFetch === 'function' ? authenticatedFetch : fetch;
+            const res = await fetchFn(`${window.CORE_API_URL}category`);
             if (res.ok) {
                 const cats = await res.json();
                 const sel = document.getElementById("reportCategorySelect");

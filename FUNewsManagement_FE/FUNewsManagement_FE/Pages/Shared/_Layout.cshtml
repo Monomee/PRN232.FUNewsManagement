@@ -334,7 +334,18 @@
                 }
             }
 
-            // 3. ARTICLE LIST (GET /api/news)
+            // 3. TRENDING ARTICLES (GET /api/analytics/trending)
+            if (urlLower.includes("/trending")) {
+                console.info(`[Offline Mode] Intercepting trending for: ${url}`);
+                const top10 = await getTop10NewsCache();
+                const sorted = [...top10].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0)).slice(0, 5);
+                return new Response(JSON.stringify(sorted), {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" }
+                });
+            }
+
+            // 4. ARTICLE LIST (GET /api/news)
             if (urlLower.includes("/news") || urlLower.includes("newsarticle")) {
                 const top10 = await getTop10NewsCache();
                 return new Response(JSON.stringify(top10), {
